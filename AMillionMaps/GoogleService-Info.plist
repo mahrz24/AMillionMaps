@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>127527788168-5a4jcjt79fl4h1oefhktduplp1g9dab3.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.127527788168-5a4jcjt79fl4h1oefhktduplp1g9dab3</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD4pExIck5Re2dPOBLWYH2orW_sIUxALxM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>127527788168</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>de.malteklemm.AMillionMaps</string>
+	<key>PROJECT_ID</key>
+	<string>a-million-maps</string>
+	<key>STORAGE_BUCKET</key>
+	<string>a-million-maps.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:127527788168:ios:cd8c3bd0a87a746fa3c93d</string>
+	<key>DATABASE_URL</key>
+	<string>https://a-million-maps.firebaseio.com</string>
+</dict>
+</plist>
