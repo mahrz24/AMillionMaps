@@ -42,13 +42,13 @@ struct MapView: UIViewRepresentable {
     }
     
     func update() {
-      self.layer?.fillOpacity = NSExpression(format: "TERNARY(iso_a3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
+      self.layer?.fillOpacity = NSExpression(format: "TERNARY(ISO_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
     }
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
       
-      guard let url = Bundle.main.url(forResource: "custom.geo", withExtension: "json") else {
-        fatalError("Failed to locate 'custom.geo' in bundle.")
+      guard let url = Bundle.main.url(forResource: "ne_10m_admin_0_countries", withExtension: "json") else {
+        fatalError("Failed to locate 'ne_10m_admin_0_countries.geo' in bundle.")
       }
 
       if countryUpdate == nil {
@@ -67,7 +67,7 @@ struct MapView: UIViewRepresentable {
       newLayer.sourceLayerIdentifier = "countries"
       
       newLayer.fillColor = NSExpression(forConstantValue: UIColor.darkGray)
-      newLayer.fillOpacity = NSExpression(format: "TERNARY(iso_a3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
+      newLayer.fillOpacity = NSExpression(format: "TERNARY(ISO_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
       style.addLayer(newLayer)
       layer = newLayer
 

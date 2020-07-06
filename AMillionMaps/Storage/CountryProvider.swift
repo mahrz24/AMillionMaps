@@ -69,6 +69,7 @@ class DummyCountryProvider: CountryProvider {
     ]
   }
   
+  
   func factMetadata(fact: Fact) -> NumericMetadata {
     switch fact.type {
     case .Constant(.numeric):
