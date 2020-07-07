@@ -12,6 +12,7 @@ target 'AMillionMaps' do
   pod 'Firebase/Analytics'
   pod 'Resolver'
   pod 'Mapbox-iOS-SDK', '~> 5.9'
+  pod 'SQLite.swift', '~> 0.12.0'
   
 
   target 'AMillionMapsTests' do

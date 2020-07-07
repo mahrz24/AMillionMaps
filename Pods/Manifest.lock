@@ -71,11 +71,15 @@ PODS:
   - nanopb/encode (1.30905.0)
   - PromisesObjC (1.2.8)
   - Resolver (1.1.4)
+  - SQLite.swift (0.12.2):
+    - SQLite.swift/standard (= 0.12.2)
+  - SQLite.swift/standard (0.12.2)
 
 DEPENDENCIES:
   - Firebase/Analytics
   - Mapbox-iOS-SDK (~> 5.9)
   - Resolver
+  - SQLite.swift (~> 0.12.0)
 
 SPEC REPOS:
   trunk:
@@ -94,6 +98,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - Resolver
+    - SQLite.swift
 
 SPEC CHECKSUMS:
   Firebase: 7cf5f9c67f03cb3b606d1d6535286e1080e57eb6
@@ -111,7 +116,8 @@ SPEC CHECKSUMS:
   nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   Resolver: 1f4c046255cbadfa97094692e16e940d4329779f
+  SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
 
-PODFILE CHECKSUM: c897d5d18c9e3c392869fd57bf0894b7e5d08f19
+PODFILE CHECKSUM: 52ea1a7b50a823eb4717f7e958f83610868ca2aa
 
 COCOAPODS: 1.9.0
