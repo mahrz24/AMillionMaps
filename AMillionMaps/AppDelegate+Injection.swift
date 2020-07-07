@@ -11,7 +11,7 @@ import Resolver
 
 extension Resolver: ResolverRegistering {
   public static func registerAllServices() {
-    register { DummyCountryProvider() as CountryProvider }.scope(application)
+    register { SQLCountryProvider() as CountryProvider }.scope(application)
     register { DefaultStatefulFilteredCountryProvider() as StatefulFilteredCountryProvider }.scope(application)
   }
 }

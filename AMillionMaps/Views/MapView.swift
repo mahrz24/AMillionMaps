@@ -42,7 +42,7 @@ struct MapView: UIViewRepresentable {
     }
     
     func update() {
-      self.layer?.fillOpacity = NSExpression(format: "TERNARY(ISO_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
+      self.layer?.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
     }
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
@@ -54,7 +54,6 @@ struct MapView: UIViewRepresentable {
       if countryUpdate == nil {
         print("Registering update sink")
            countryUpdate = filteredCountryProvider.countriesDidChange.receive(on: RunLoop.main).sink {
-             print("Countries updated")
              self.update()
            }
          }
@@ -67,7 +66,7 @@ struct MapView: UIViewRepresentable {
       newLayer.sourceLayerIdentifier = "countries"
       
       newLayer.fillColor = NSExpression(forConstantValue: UIColor.darkGray)
-      newLayer.fillOpacity = NSExpression(format: "TERNARY(ISO_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.iSO3166_1_Alpha3CountryCode })
+      newLayer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
       style.addLayer(newLayer)
       layer = newLayer
 
