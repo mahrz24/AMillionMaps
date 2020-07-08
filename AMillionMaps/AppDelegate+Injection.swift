@@ -8,10 +8,20 @@
 
 import Foundation
 import Resolver
+import SQLite
 
 extension Resolver: ResolverRegistering {
   public static func registerAllServices() {
-    register { SQLCountryProvider() as CountryProvider }.scope(application)
+    register(Connection.self) {
+      guard let url = Bundle.main.url(forResource: "countries", withExtension: "db") else {
+        fatalError("Failed to locate 'countries.db' in bundle.")
+      }
+      guard let db = try? Connection(url.absoluteString, readonly: true) else {
+        fatalError("Could not open 'countries.db'")
+      }
+      return db
+    }.scope(application)
+    register { SQLCountryProvider(db: resolve()) as CountryProvider }.scope(application)
     register { DefaultStatefulFilteredCountryProvider() as StatefulFilteredCountryProvider }.scope(application)
   }
 }

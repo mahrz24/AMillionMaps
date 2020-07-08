@@ -16,7 +16,7 @@ struct FactFilterView: View {
   var body: some View {
       switch self.fact.type {
       case .Constant(.numeric):
-        return AnyView(NumericFactFilterView(fact: self.fact, action: self.action).frame(width: 180).padding(10))
+        return AnyView(NumericFactFilterView(fact: self.fact, action: self.action).frame(width: 180.0, height: 30.0).padding(10))
       default:
         return AnyView(Text("Unknown Fact Type"))
       }

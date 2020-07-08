@@ -48,45 +48,105 @@ class DefaultStatefulFilteredCountryProvider:  StatefulFilteredCountryProvider {
 }
 
 class SQLCountryProvider: CountryProvider {
-  var db: Connection?
+  var db: Connection
   
-  init () {
-    guard let url = Bundle.main.url(forResource: "countries", withExtension: "db") else {
-      fatalError("Failed to locate 'countries.db' in bundle.")
-    }
-    
-    self.db = try? Connection(url.absoluteString)
+  init (db: Connection) {
+    self.db = db
   }
   
+  fileprivate func toSQLCondition(_ condition: Condition) -> String {
+    let fact = condition.fact
+    switch fact.type {
+    case .Constant(.numeric):
+      let db_column = "country_\(fact.id.lowercased())"
+      guard case let ConditionValue.numeric(value) = condition.value else {
+        fatalError("Condition fact type \(fact.type) and condition value \(condition.value) are not matching.")
+      }
+      
+      return "\(db_column) >= \(value.lowerBound) AND \(db_column) <= \(value.upperBound)"
+    default:
+      fatalError("Condition of fact type \(fact.type) cannot be converted")
+    }
+  }
   
   func countries(_ filter: Filter) -> [Country] {
-    switch filter.conjunctions.first?.conditions.first?.value {
-    case let .numeric(value):
-      if let db = db {
-        var result: [Country] = []
-        if let cursor = try? db.prepare("SELECT country_id FROM country WHERE country_population > \(value.lowerBound) AND country_population < \(value.upperBound)") {
-          for row in cursor {
-            result.append(Country(id: row[0] as! String))
-          }
-          print(result)
-        }
-        print(result)
-        return result
-      }
-    default:
-      print("not matched")
+    let facts = Array(Set(Country.tableFacts + Country.mapFacts)).sorted(by: { $0.id < $1.id})
+    let fact_columns = facts.map {
+      "country_\($0.id.lowercased())"
     }
-    return [
-      Country(id: "AFG"),
-      Country(id: "ALB")
-    ]
+    
+    let columns = ["country_id"] + Array(fact_columns)
+    let columns_expression = columns.joined(separator: ", ")
+    
+    var condition = filter.conjunctions.map {
+      conjunction in
+      let conjunctionString = conjunction.conditions.filter {$0.value != ConditionValue.none}.map(toSQLCondition).joined(separator: " AND ")
+      if conjunctionString.count > 0 {
+        return "(" + conjunctionString + ")"
+      }
+      else
+      {
+        return ""
+      }
+    }.joined(separator: " OR ")
+    
+    var result: [Country] = []
+    
+    if condition.count > 0 {
+      condition = " WHERE " + condition
+    }
+    
+    let query = "SELECT \(columns_expression) FROM country \(condition)"
+    
+    print(query)
+    
+    if let cursor = try? db.prepare(query) {
+      for row in cursor {
+        result.append(Country(id: row[0] as! String))
+      }
+    }
+    return result
   }
   
+  
+  fileprivate func asDouble(_ binding: Binding?) -> Double {
+    guard let binding = binding else {
+      return 0
+    }
+    switch binding {
+    case let double as Double:
+      return double
+      
+    case let int as Int64:
+      return Double(int)
+      
+    default:
+      return 0
+    }
+  }
   
   func factMetadata(fact: Fact) -> NumericMetadata {
     switch fact.type {
     case .Constant(.numeric):
-      return NumericMetadata(range: 0...20000000000)
+      let db_column = "country_\(fact.id.lowercased())"
+      
+      print("SELECT MIN(\(db_column)), MAX(\(db_column)) FROM country")
+      
+      guard let statement = try? db.prepare("SELECT MIN(\(db_column)), MAX(\(db_column)) FROM country LIMIT 1") else {
+        fatalError("Could not retrieve range for fact '\(fact.id)'")
+      }
+      
+      guard let row = statement.next() else {
+        fatalError("Could not retrieve range for fact '\(fact.id)'")
+      }
+      
+      let lowerBound = asDouble(row[0])
+      let upperBound = asDouble(row[1])
+      
+      print(lowerBound)
+      print(upperBound)
+
+      return NumericMetadata(range: lowerBound...upperBound)
     case .TimeSeries(.numeric):
       return NumericMetadata(range: 0...10)
     default:

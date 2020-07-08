@@ -16,10 +16,9 @@ struct NumericFactFilterView: View {
   var fact: Fact
   var action: (ConditionValue) -> Void
   @Injected var countryProvider: CountryProvider
-  @State private var filterRange: ClosedRange<Double> = 0...0
-  @State private var filterBounds: ClosedRange<Double> = 0...0
-  @State private var rangeUpdateSink: AnyCancellable? = nil
-    
+  @State private var filterRange: ClosedRange<Double> = 0...1
+  @State private var filterBounds: ClosedRange<Double> = 0...1
+  
     var body: some View {
       
       return VStack {
@@ -33,7 +32,7 @@ struct NumericFactFilterView: View {
            HorizontalRangeSliderStyle(
                track:
                    HorizontalRangeTrack(
-                       view: LinearGradient(gradient: Gradient(colors: [.purple, .blue, .purple]), startPoint: .leading, endPoint: .trailing),
+                       view: LinearGradient(gradient: Gradient(colors: [.gray, .blue]), startPoint: .leading, endPoint: .trailing),
                        mask: Rectangle()
                    )
                     .frame(height:15)

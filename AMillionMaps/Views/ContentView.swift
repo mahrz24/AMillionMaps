@@ -16,10 +16,8 @@ struct ContentView: View {
         MapView()
         Text("Table")
       }
-    }.onTapGesture {
-        print("Tapped!")
     }
-    
+  
   }
 }
 

@@ -12,7 +12,8 @@ import Resolver
 class FilterViewModel: ObservableObject {
   @Injected var filteredCountryProvider: StatefulFilteredCountryProvider
   
-  @Published var filters : [Fact: Condition] = [Country.filterFacts[0] : Condition(fact: Country.filterFacts[0], value: ConditionValue.none)] {
+  @Published var filters : [Fact: Condition] = [:]
+    {
     didSet {
       filteredCountryProvider.apply(
         Filter(conjunctions: [Conjunction(conditions: Array(filters.values))])
@@ -24,7 +25,7 @@ class FilterViewModel: ObservableObject {
 struct FilterView: View {
   @Injected var countryProvider: CountryProvider
  
-  @State var activeFacts: [Fact] = [Country.filterFacts[0]]
+  @State var activeFacts: [Fact] = []
   @State var filterDropdownExpanded = false
   
   @ObservedObject var viewModel: FilterViewModel = FilterViewModel()
@@ -71,11 +72,15 @@ struct FilterView: View {
             alignment: .topTrailing
           )
         }.zIndex(10)
-        ScrollView {
-          ForEach(activeFacts) {
-            fact in
-            FactFilterView(fact: fact, action: { self.viewModel.filters[fact] = Condition(fact: fact, value: $0) })
-          }
+//        GeometryReader { geometry in
+          ScrollView {
+        VStack{
+            ForEach(self.activeFacts) {
+              fact in
+              FactFilterView(fact: fact, action: { self.viewModel.filters[fact] = Condition(fact: fact, value: $0) })
+            }
+        }
+//          }.frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
   }

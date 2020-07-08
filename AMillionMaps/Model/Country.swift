@@ -36,6 +36,10 @@ class Country: Identifiable {
     facts
   }
   
+  static var tableFacts: [Fact] {
+    facts
+  }
+  
   var population: Double = 0
   var area: Double = 0
 }

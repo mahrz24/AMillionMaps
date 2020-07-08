@@ -42,7 +42,8 @@ struct MapView: UIViewRepresentable {
     }
     
     func update() {
-      self.layer?.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
+      self.layer?.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", self.filteredCountryProvider.countries.map { $0.id }, UIColor.darkGray, UIColor.systemPink)
+      //self.layer?.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
     }
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
@@ -65,8 +66,8 @@ struct MapView: UIViewRepresentable {
       let newLayer = MGLFillStyleLayer(identifier: "countries", source: countries)
       newLayer.sourceLayerIdentifier = "countries"
       
-      newLayer.fillColor = NSExpression(forConstantValue: UIColor.darkGray)
-      newLayer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
+      newLayer.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", self.filteredCountryProvider.countries.map { $0.id }, UIColor.darkGray, UIColor.systemPink)
+      //newLayer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0.2)", self.filteredCountryProvider.countries.map { $0.id })
       style.addLayer(newLayer)
       layer = newLayer
 
