@@ -13,7 +13,7 @@ struct ConfigView: View {
     var body: some View {
       ZStack {
         FilterView()
-      }.frame(maxWidth: 200)
+      }.frame(maxWidth: 250)
     }
 }
 

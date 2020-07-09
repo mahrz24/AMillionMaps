@@ -8,16 +8,22 @@
 
 import Foundation
 
+struct NumericFactProperties {
+  let logarithmicScale: Bool
+  let round: Optional<Int>
+}
+
 enum FactType {
   case Constant(FactAtom)
   case TimeSeries(FactAtom)
 }
 
 enum FactAtom {
-  case numeric
+  case numeric(NumericFactProperties)
   case bool
   case categorical
 }
+
 
 struct Fact: Identifiable, Equatable, Hashable {
   static func == (lhs: Fact, rhs: Fact) -> Bool {

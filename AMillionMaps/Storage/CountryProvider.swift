@@ -59,11 +59,21 @@ class SQLCountryProvider: CountryProvider {
     switch fact.type {
     case .Constant(.numeric):
       let db_column = "country_\(fact.id.lowercased())"
-      guard case let ConditionValue.numeric(value) = condition.value else {
+      guard case let ConditionValue.numeric(value, lowerOpen, _) = condition.value else {
         fatalError("Condition fact type \(fact.type) and condition value \(condition.value) are not matching.")
       }
       
-      return "\(db_column) >= \(value.lowerBound) AND \(db_column) <= \(value.upperBound)"
+      var condition: String = ""
+      
+      if !lowerOpen {
+        condition += "\(db_column) >= \(value.lowerBound) AND"
+      } else {
+        condition += "\(db_column) IS NULL OR"
+      }
+      
+      condition += " \(db_column) <= \(value.upperBound)"
+    
+      return "(\(condition))" 
     default:
       fatalError("Condition of fact type \(fact.type) cannot be converted")
     }
@@ -160,7 +170,7 @@ class DummyCountryProvider: CountryProvider {
   
   func countries(_ filter: Filter) -> [Country] {
     switch filter.conjunctions.first?.conditions.first?.value {
-    case let .numeric(value):
+    case let .numeric(value, _, _):
       if value.lowerBound > 5 {
         return [
           Country(id: "AFG")

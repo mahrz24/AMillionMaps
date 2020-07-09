@@ -17,12 +17,12 @@ class Country: Identifiable {
   
   static let facts: [Fact] = [
     Fact(
-      type: FactType.Constant(.numeric),
+      type: FactType.Constant(.numeric(NumericFactProperties(logarithmicScale: true, round: 0))),
       id: "Population",
       keyPath: \Country.population
     ),
     Fact(
-      type: FactType.Constant(.numeric),
+      type: FactType.Constant(.numeric(NumericFactProperties(logarithmicScale: false, round: 2))),
       id: "Area",
       keyPath: \Country.area
     )

@@ -9,7 +9,7 @@
 import Foundation
 
 enum ConditionValue: Equatable {
-  case numeric(ClosedRange<Double>)
+  case numeric(ClosedRange<Double>, Bool, Bool)
   case categorical([String])
   case bool(Bool)
   case none
