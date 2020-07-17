@@ -23,15 +23,14 @@
 //
 
 extension Module {
+  public static func RTree<T: Value, U: Value>(_ primaryKey: Expression<T>, _ pairs: (Expression<U>, Expression<U>)...) -> Module
+    where T.Datatype == Int64, U.Datatype == Double {
+    var arguments: [Expressible] = [primaryKey]
 
-    public static func RTree<T : Value, U : Value>(_ primaryKey: Expression<T>, _ pairs: (Expression<U>, Expression<U>)...) -> Module where T.Datatype == Int64, U.Datatype == Double {
-        var arguments: [Expressible] = [primaryKey]
-
-        for pair in pairs {
-            arguments.append(contentsOf: [pair.0, pair.1] as [Expressible])
-        }
-
-        return Module(name: "rtree", arguments: arguments)
+    for pair in pairs {
+      arguments.append(contentsOf: [pair.0, pair.1] as [Expressible])
     }
 
+    return Module(name: "rtree", arguments: arguments)
+  }
 }

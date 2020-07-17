@@ -26,44 +26,38 @@
 ///
 /// - SeeAlso: <https://www.sqlite.org/datatype3.html#collation>
 public enum Collation {
+  /// Compares string by raw data.
+  case binary
 
-    /// Compares string by raw data.
-    case binary
+  /// Like binary, but folds uppercase ASCII letters into their lowercase
+  /// equivalents.
+  case nocase
 
-    /// Like binary, but folds uppercase ASCII letters into their lowercase
-    /// equivalents.
-    case nocase
+  /// Like binary, but strips trailing space.
+  case rtrim
 
-    /// Like binary, but strips trailing space.
-    case rtrim
-
-    /// A custom collating sequence identified by the given string, registered
-    /// using `Database.create(collation:…)`
-    case custom(String)
-
+  /// A custom collating sequence identified by the given string, registered
+  /// using `Database.create(collation:…)`
+  case custom(String)
 }
 
-extension Collation : Expressible {
-
-    public var expression: Expression<Void> {
-        return Expression(literal: description)
-    }
-
+extension Collation: Expressible {
+  public var expression: Expression<Void> {
+    return Expression(literal: description)
+  }
 }
 
-extension Collation : CustomStringConvertible {
-
-    public var description : String {
-        switch self {
-        case .binary:
-            return "BINARY"
-        case .nocase:
-            return "NOCASE"
-        case .rtrim:
-            return "RTRIM"
-        case .custom(let collation):
-            return collation.quote()
-        }
+extension Collation: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case .binary:
+      return "BINARY"
+    case .nocase:
+      return "NOCASE"
+    case .rtrim:
+      return "RTRIM"
+    case let .custom(collation):
+      return collation.quote()
     }
-
+  }
 }

@@ -9,8 +9,8 @@
 import Foundation
 
 struct NumericFactProperties {
-  let logarithmicScale: Bool
-  let round: Optional<Int>
+  let distributeByRank: Bool
+  let round: Int?
 }
 
 enum FactType {
@@ -24,24 +24,20 @@ enum FactAtom {
   case categorical
 }
 
-
 struct Fact: Identifiable, Equatable, Hashable {
   static func == (lhs: Fact, rhs: Fact) -> Bool {
     lhs.id == rhs.id
   }
-  
+
   func hash(into hasher: inout Hasher) {
-      hasher.combine(id)
+    hasher.combine(id)
   }
-  
+
   let type: FactType
   let id: String
   let keyPath: AnyKeyPath
 }
 
-
 struct NumericMetadata {
   let range: ClosedRange<Double>
 }
-
-

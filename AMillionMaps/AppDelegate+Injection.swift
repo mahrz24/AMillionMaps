@@ -22,6 +22,7 @@ extension Resolver: ResolverRegistering {
       return db
     }.scope(application)
     register { SQLCountryProvider(db: resolve()) as CountryProvider }.scope(application)
-    register { DefaultStatefulFilteredCountryProvider() as StatefulFilteredCountryProvider }.scope(application)
+    register { FilterState() }.scope(application)
+    register { ColorAndDataState() }.scope(application)
   }
 }

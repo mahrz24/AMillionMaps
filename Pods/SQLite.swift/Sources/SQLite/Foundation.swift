@@ -24,47 +24,43 @@
 
 import Foundation
 
-extension Data : Value {
+extension Data: Value {
+  public static var declaredDatatype: String {
+    return Blob.declaredDatatype
+  }
 
-    public static var declaredDatatype: String {
-        return Blob.declaredDatatype
+  public static func fromDatatypeValue(_ dataValue: Blob) -> Data {
+    return Data(dataValue.bytes)
+  }
+
+  public var datatypeValue: Blob {
+    return withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Blob in
+      Blob(bytes: pointer.baseAddress!, length: count)
     }
-
-    public static func fromDatatypeValue(_ dataValue: Blob) -> Data {
-        return Data(dataValue.bytes)
-    }
-
-    public var datatypeValue: Blob {
-        return withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Blob in
-            return Blob(bytes: pointer.baseAddress!, length: count)
-        }
-    }
-
+  }
 }
 
-extension Date : Value {
+extension Date: Value {
+  public static var declaredDatatype: String {
+    return String.declaredDatatype
+  }
 
-    public static var declaredDatatype: String {
-        return String.declaredDatatype
-    }
+  public static func fromDatatypeValue(_ stringValue: String) -> Date {
+    return dateFormatter.date(from: stringValue)!
+  }
 
-    public static func fromDatatypeValue(_ stringValue: String) -> Date {
-        return dateFormatter.date(from: stringValue)!
-    }
-
-    public var datatypeValue: String {
-        return dateFormatter.string(from: self)
-    }
-
+  public var datatypeValue: String {
+    return dateFormatter.string(from: self)
+  }
 }
 
 /// A global date formatter used to serialize and deserialize `NSDate` objects.
 /// If multiple date formats are used in an application’s database(s), use a
 /// custom `Value` type per additional format.
 public var dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-    return formatter
+  let formatter = DateFormatter()
+  formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+  formatter.locale = Locale(identifier: "en_US_POSIX")
+  formatter.timeZone = TimeZone(secondsFromGMT: 0)
+  return formatter
 }()

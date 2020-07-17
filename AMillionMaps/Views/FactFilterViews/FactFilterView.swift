@@ -8,23 +8,22 @@
 
 import SwiftUI
 
-
 struct FactFilterView: View {
   let fact: Fact
   let action: (ConditionValue) -> Void
 
   var body: some View {
-      switch self.fact.type {
-      case .Constant(.numeric):
-        return AnyView(NumericFactFilterView(fact: self.fact, action: self.action).frame(width: 180.0).padding(10))
-      default:
-        return AnyView(Text("Unknown Fact Type"))
-      }
+    switch self.fact.type {
+    case .Constant(.numeric):
+      return AnyView(NumericFactFilterView(fact: self.fact, action: self.action))
+    default:
+      return AnyView(Text("Unknown Fact Type"))
+    }
   }
 }
 
-//struct FactFilterView_Previews: PreviewProvider {
+// struct FactFilterView_Previews: PreviewProvider {
 //    static var previews: some View {
 //        FactFilterView()
 //    }
-//}
+// }

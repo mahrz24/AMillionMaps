@@ -9,25 +9,21 @@
 import Foundation
 
 extension Double {
-
-    func truncate(places: Int) -> Double {
-
-        let multiplier = pow(10, Double(places))
-        let newDecimal = multiplier * self // move the decimal right
-        let truncated = Double(Int(newDecimal)) // drop the fraction
-        let originalDecimal = truncated / multiplier // move the decimal back
-        return originalDecimal
-
-    }
-  
-  func formatTruncated(places: Int) -> String {
-    if places == 0 {
-      return "\(Int(self.truncate(places: 0)))"
-    } else {
-      return "\(self.truncate(places: places))"
-    }
+  func truncate(places: Int) -> Double {
+    let multiplier = pow(10, Double(places))
+    let newDecimal = multiplier * self // move the decimal right
+    let truncated = Double(Int(newDecimal)) // drop the fraction
+    let originalDecimal = truncated / multiplier // move the decimal back
+    return originalDecimal
   }
 
+  func formatTruncated(places: Int) -> String {
+    if places == 0 {
+      return "\(Int(truncate(places: 0)))"
+    } else {
+      return "\(truncate(places: places))"
+    }
+  }
 }
 
 func formatNumber(_ n: Int) -> String {
@@ -35,27 +31,23 @@ func formatNumber(_ n: Int) -> String {
 }
 
 func formatNumber(_ n: Double, truncate: Int = 3) -> String {
+  let num = abs(Double(n))
+  let sign = (n < 0) ? "-" : ""
 
-    let num = abs(Double(n))
-    let sign = (n < 0) ? "-" : ""
+  switch num {
+  case 1000000000...:
+    let formatted = num / 1000000000
+    return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))B"
 
-    switch num {
+  case 1000000...:
+    let formatted = num / 1000000
+    return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))M"
 
-    case 1_000_000_000...:
-        let formatted = num / 1_000_000_000
-        return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))B"
+  case 1000...:
+    let formatted = num / 1000
+    return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))K"
 
-    case 1_000_000...:
-        let formatted = num / 1_000_000
-        return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))M"
-
-    case 1_000...:
-        let formatted = num / 1_000
-        return "\(sign)\(formatted.formatTruncated(places: min(max(truncate, 1), 3)))K"
-
-    default:
-        return "\(sign)\(num.formatTruncated(places: truncate))"
-
-    }
-
+  default:
+    return "\(sign)\(num.formatTruncated(places: truncate))"
+  }
 }

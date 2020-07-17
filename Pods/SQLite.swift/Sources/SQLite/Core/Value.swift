@@ -29,104 +29,90 @@
 ///   protocol, instead.
 public protocol Binding {}
 
-public protocol Number : Binding {}
+public protocol Number: Binding {}
 
-public protocol Value : Expressible { // extensions cannot have inheritance clauses
+public protocol Value: Expressible { // extensions cannot have inheritance clauses
+  associatedtype ValueType = Self
 
-    associatedtype ValueType = Self
+  associatedtype Datatype: Binding
 
-    associatedtype Datatype : Binding
+  static var declaredDatatype: String { get }
 
-    static var declaredDatatype: String { get }
+  static func fromDatatypeValue(_ datatypeValue: Datatype) -> ValueType
 
-    static func fromDatatypeValue(_ datatypeValue: Datatype) -> ValueType
-
-    var datatypeValue: Datatype { get }
-
+  var datatypeValue: Datatype { get }
 }
 
-extension Double : Number, Value {
+extension Double: Number, Value {
+  public static let declaredDatatype = "REAL"
 
-    public static let declaredDatatype = "REAL"
+  public static func fromDatatypeValue(_ datatypeValue: Double) -> Double {
+    return datatypeValue
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: Double) -> Double {
-        return datatypeValue
-    }
-
-    public var datatypeValue: Double {
-        return self
-    }
-
+  public var datatypeValue: Double {
+    return self
+  }
 }
 
-extension Int64 : Number, Value {
+extension Int64: Number, Value {
+  public static let declaredDatatype = "INTEGER"
 
-    public static let declaredDatatype = "INTEGER"
+  public static func fromDatatypeValue(_ datatypeValue: Int64) -> Int64 {
+    return datatypeValue
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: Int64) -> Int64 {
-        return datatypeValue
-    }
-
-    public var datatypeValue: Int64 {
-        return self
-    }
-
+  public var datatypeValue: Int64 {
+    return self
+  }
 }
 
-extension String : Binding, Value {
+extension String: Binding, Value {
+  public static let declaredDatatype = "TEXT"
 
-    public static let declaredDatatype = "TEXT"
+  public static func fromDatatypeValue(_ datatypeValue: String) -> String {
+    return datatypeValue
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: String) -> String {
-        return datatypeValue
-    }
-
-    public var datatypeValue: String {
-        return self
-    }
-
+  public var datatypeValue: String {
+    return self
+  }
 }
 
-extension Blob : Binding, Value {
+extension Blob: Binding, Value {
+  public static let declaredDatatype = "BLOB"
 
-    public static let declaredDatatype = "BLOB"
+  public static func fromDatatypeValue(_ datatypeValue: Blob) -> Blob {
+    return datatypeValue
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: Blob) -> Blob {
-        return datatypeValue
-    }
-
-    public var datatypeValue: Blob {
-        return self
-    }
-
+  public var datatypeValue: Blob {
+    return self
+  }
 }
 
 // MARK: -
 
-extension Bool : Binding, Value {
+extension Bool: Binding, Value {
+  public static var declaredDatatype = Int64.declaredDatatype
 
-    public static var declaredDatatype = Int64.declaredDatatype
+  public static func fromDatatypeValue(_ datatypeValue: Int64) -> Bool {
+    return datatypeValue != 0
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: Int64) -> Bool {
-        return datatypeValue != 0
-    }
-
-    public var datatypeValue: Int64 {
-        return self ? 1 : 0
-    }
-
+  public var datatypeValue: Int64 {
+    return self ? 1 : 0
+  }
 }
 
-extension Int : Number, Value {
+extension Int: Number, Value {
+  public static var declaredDatatype = Int64.declaredDatatype
 
-    public static var declaredDatatype = Int64.declaredDatatype
+  public static func fromDatatypeValue(_ datatypeValue: Int64) -> Int {
+    return Int(datatypeValue)
+  }
 
-    public static func fromDatatypeValue(_ datatypeValue: Int64) -> Int {
-        return Int(datatypeValue)
-    }
-
-    public var datatypeValue: Int64 {
-        return Int64(self)
-    }
-
+  public var datatypeValue: Int64 {
+    return Int64(self)
+  }
 }

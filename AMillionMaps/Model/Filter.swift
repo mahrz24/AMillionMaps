@@ -27,7 +27,7 @@ struct Condition: Equatable {
   static func == (lhs: Condition, rhs: Condition) -> Bool {
     return lhs.fact == rhs.fact && lhs.value == rhs.value
   }
-  
+
   var fact: Fact
   var value: ConditionValue
 }
