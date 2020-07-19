@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ListPicker<Content: View, Data: Hashable>: View {
+struct ListPicker<Content: View, Data: Identifiable>: View {
   
   @Binding var selections: [Data]
   @Binding var selected: Data
@@ -30,7 +30,7 @@ struct ListPicker<Content: View, Data: Hashable>: View {
           ForEach(self.selections.indices) {
           index in
             Button(action: { self.selected = self.selections[index] }) {
-              self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
+              self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
             }
           }
         }

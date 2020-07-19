@@ -14,16 +14,15 @@ enum SelectorViewState {
   case filterFactSelection
   case colorFactSelection
   case colorThemeSelection
+  case domainMapperSelection
 }
 
 struct ContentView: View {
   
-  // Global states needed for the fact selectors
+  // Global states needed for the fact selectors / other pickers
   @State var selectorState: SelectorViewState = .hidden
   
-  // State for the filter facts
   @ObservedObject var filterViewModel = FilterViewModel()
-  
   @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
   
   func generateSelectorView() -> AnyView {
@@ -48,6 +47,22 @@ struct ContentView: View {
       case .colorThemeSelection:
       return AnyView(
         ListPicker(.constant(ColorTheme.allThemes()), selected: self.$colorViewModel.colorTheme) {
+          fact, selected in
+          HStack {
+            Image(systemName: selected ? "checkmark.square" : "square")
+            .resizable()
+            .frame(width: 14, height: 14)
+            Text(fact.id)
+            Spacer()
+          }
+        }.padding()
+      )
+      case .domainMapperSelection:
+      return AnyView(
+        ListPicker(.constant([
+          AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
+          AnyDomainMapperFactory(with: RankDomainMapperFactory())
+        ]), selected: self.$colorViewModel.domainMapperFactory) {
           fact, selected in
           HStack {
             Image(systemName: selected ? "checkmark.square" : "square")

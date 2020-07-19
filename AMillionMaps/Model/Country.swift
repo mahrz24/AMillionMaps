@@ -22,6 +22,14 @@ class Country: Identifiable {
     Fact(type: FactType.Constant(.numeric(NumericFactProperties(distributeByRank: false, round: 2))),
          id: "Area",
          keyPath: \Country.area),
+    Fact(type: FactType.Constant(.categorical(CategoricalFactProperties(categoryLabels: [
+      "Sovereign",
+      "Country",
+      "Dependency",
+      "Other"
+    ]))),
+        id: "Type",
+        keyPath: \Country.type),
   ]
 
   static var filterFacts: [Fact] {
@@ -36,6 +44,7 @@ class Country: Identifiable {
     facts
   }
 
+  var type: Int?
   var population: Double?
   var area: Double?
 }

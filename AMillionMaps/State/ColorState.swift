@@ -18,7 +18,12 @@ class ColorAndDataState: ObservableObject {
   @Injected var filterState: FilterState
   
   @Published var countryColors: [String : UIColor] = [:]
-  @Published var domainMapperFactory: DomainMapperFactory = LinearDomainMapperFactory()
+  
+  @Published var domainMapperFactory: AnyDomainMapperFactory = AnyDomainMapperFactory(with: LinearDomainMapperFactory()) {
+    didSet {
+      updateCountryColors()
+    }
+  }
   
   @Published var showFiltered: Bool = true {
     didSet {
@@ -56,7 +61,7 @@ class ColorAndDataState: ObservableObject {
       let values = countryProvider.countries(Filter(conjunctions: [])).map { ($0.id, $0[keyPath: keyPath] ?? meta.range.lowerBound)  }
       let mapping = values.reduce(into: [:]) { $0[$1.0] = ($1.1 ) }
       
-      let domainMapper = domainMapperFactory.createDomainMapper(fact: fact)
+      let domainMapper = domainMapperFactory.createDomainMapper(fact)
       
       let normalizedValues = mapping.mapValues({ domainMapper.domainToImage($0) })
       self.countryColors = normalizedValues.mapValues(colorTheme.colorForImageValue)

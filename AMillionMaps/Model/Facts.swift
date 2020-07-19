@@ -13,6 +13,11 @@ struct NumericFactProperties {
   let round: Int?
 }
 
+struct CategoricalFactProperties {
+  let categoryLabels: [String]
+}
+
+
 enum FactType {
   case Constant(FactAtom)
   case TimeSeries(FactAtom)
@@ -21,7 +26,7 @@ enum FactType {
 enum FactAtom {
   case numeric(NumericFactProperties)
   case bool
-  case categorical
+  case categorical(CategoricalFactProperties)
 }
 
 struct Fact: Identifiable, Equatable, Hashable {

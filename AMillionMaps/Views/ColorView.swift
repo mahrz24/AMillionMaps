@@ -48,6 +48,13 @@ struct ColorView: View {
           Text(self.viewModel.colorTheme.label)
           }
       }
+      HStack {
+        Text("Mapping:")
+        Spacer()
+        Button(action: { self.selectorViewState = .domainMapperSelection }) {
+          Text(self.viewModel.domainMapperFactory.id)
+          }
+      }
     }
   }
 }

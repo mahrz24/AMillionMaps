@@ -50,7 +50,7 @@ extension UIColor {
 
 }
 
-struct ColorTheme: Hashable {
+struct ColorTheme: Identifiable {
   var id: String { label }
   var label: String
   var background: UIColor
