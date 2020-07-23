@@ -11,6 +11,20 @@ import Foundation
 import UIKit
 import Resolver
 
+func liftDomainMapper(_ f: @escaping ((Any) -> Double)) -> ((Any?) -> Double?) {
+  return { value in
+    if let value = value {
+      if case Optional<Any>.none = value {
+        return nil
+      } else {
+        return f(value)
+      }
+      
+    }
+    return nil
+  }
+}
+
 
 class ColorAndDataState: ObservableObject {
   
@@ -38,7 +52,7 @@ class ColorAndDataState: ObservableObject {
     }
   }
   
-  @Published  var fact: Fact? {
+  @Published var fact: AnyFact? {
     didSet {
       updateCountryColors()
     }
@@ -55,15 +69,12 @@ class ColorAndDataState: ObservableObject {
   
   func updateCountryColors() {
     if let fact = fact {
-      let keyPath = fact.keyPath as! KeyPath<Country, Double?>
-      
-      let meta = countryProvider.factMetadata(fact)
-      let values = countryProvider.countries(Filter(conjunctions: [])).map { ($0.id, $0[keyPath: keyPath] ?? meta.range.lowerBound)  }
-      let mapping = values.reduce(into: [:]) { $0[$1.0] = ($1.1 ) }
+      let values = countryProvider.countries(Filter(conjunctions: [])).map { ($0.id, $0[keyPath: fact.keyPath])  }
+      let mapping = values.reduce(into: [:]) { $0[$1.0] = ($1.1) }
       
       let domainMapper = domainMapperFactory.createDomainMapper(fact)
       
-      let normalizedValues = mapping.mapValues({ domainMapper.domainToImage($0) })
+      let normalizedValues = mapping.mapValues({ liftDomainMapper(domainMapper.domainToImage)($0) })
       self.countryColors = normalizedValues.mapValues(colorTheme.colorForImageValue)
     } else {
       self.countryColors = [:]

@@ -15,18 +15,19 @@ protocol CountryProvider {
   func countries(_ filter: Filter) -> [Country]
   func countryIds(_ filter: Filter) -> [String]
   
-  func factMetadata(_ fact: Fact, filter: Filter) -> NumericMetadata
-  func factRank(_ fact: Fact, filter: Filter) -> [(String, Double)]
+  func factMetadata(_ fact: AnyFact, filter: Filter) -> AnyFactMetadata
+  func factRank(_ fact: ConstantNumericFact, filter: Filter) -> [(String, Double)]
   
-  func factMetadata(_ fact: Fact) -> NumericMetadata
-  func factRank(_ fact: Fact) -> [(String, Double)]
+  func factMetadata(_ fact: AnyFact) -> AnyFactMetadata
+  func factRank(_ fact: ConstantNumericFact) -> [(String, Double)]
 }
 
 class SQLCountryProvider: CountryProvider {
+  
   var db: Connection
 
   private var countryCache: [String: Country] = [:]
-  private var rankCache: [Fact: [(String, Double)]] = [:]
+  private var rankCache: [ConstantNumericFact: [(String, Double)]] = [:]
 
 
   init(db: Connection) {
@@ -130,11 +131,12 @@ class SQLCountryProvider: CountryProvider {
 
         for (i, fact) in facts.enumerated() {
           switch fact.type {
-          case FactType.Constant(.numeric(_)):
-            let keyPath = fact.keyPath as! WritableKeyPath<Country, Double?>
+          case .Constant(.numeric):
+            let numericFact: ConstantNumericFact = fact.unwrap()
+            let keyPath = numericFact.keyPath as! WritableKeyPath<Country, Double?>
             country[keyPath: keyPath] = row[i + 1] as! Double?
           default:
-            print("Not matched")
+            print("Not matched \(fact.id)")
           }
         }
 
@@ -149,49 +151,62 @@ class SQLCountryProvider: CountryProvider {
     return nil
   }
   
-  func factMetadata(_ fact: Fact, filter: Filter) -> NumericMetadata {
-    let factValues = factRank(fact, filter: filter).map { $0.1 }
-    let minValue = factValues.min() ?? 0
-    let maxValue = factValues.max() ?? 1
+  func factMetadata(_ fact: AnyFact, filter: Filter) -> AnyFactMetadata {
+    switch fact.type {
+    case .Constant(.numeric):
+      let numericFact: ConstantNumericFact = fact.unwrap()
+      let factValues = factRank(numericFact, filter: filter).map { $0.1 }
+      let minValue = factValues.min() ?? 0
+      let maxValue = factValues.max() ?? 1
 
-    return NumericMetadata(range: minValue...maxValue)
+      return AnyFactMetadata(with: NumericMetadata(range: minValue...maxValue))
+    default:
+      return AnyFactMetadata(with: NumericMetadata(range: 0...1))
+    }
   }
   
-  func factRank(_ fact: Fact, filter: Filter) -> [(String, Double)] {
+  func factMetadata(_ fact: AnyFact) -> AnyFactMetadata {
+    switch fact.type {
+    case .Constant(.numeric):
+      let numericFact: ConstantNumericFact = fact.unwrap()
+      let factValues = factRank(numericFact).map { $0.1 }
+      let minValue = factValues.min() ?? 0
+      let maxValue = factValues.max() ?? 1
+
+      return AnyFactMetadata(with: NumericMetadata(range: minValue...maxValue))
+    default:
+      return AnyFactMetadata(with: NumericMetadata(range: 0...1))
+    }
+  }
+  
+  func factRank(_ fact: ConstantNumericFact, filter: Filter) -> [(String, Double)] {
     let ids = countryIds(filter)
     let rank = factRank(fact)
     
     return rank.filter { ids.contains($0.0) }
   }
 
-  func factRank(_ fact: Fact) -> [(String, Double)] {
+  func factRank(_ fact: ConstantNumericFact) -> [(String, Double)] {
     if rankCache.keys.contains(fact) {
       return rankCache[fact] ?? []
     }
     
-    switch fact.type {
-    case .Constant(.numeric):
-      let db_column = "country_\(fact.id.lowercased())"
+  
+    let db_column = "country_\(fact.id.lowercased())"
 
-      guard let statement = try? db
-        .prepare("SELECT country_id, \(db_column) FROM country WHERE \(db_column) NOT NULL ORDER BY \(db_column) ASC") else {
-        fatalError("Could not retrieve ranks for fact '\(fact.id)'")
-      }
-
-      var result: [(String, Double)] = []
-      for row in statement {
-        result.append((row[0] as! String, row[1] as! Double))
-      }
-      
-      rankCache[fact] = result
-      
-      return result
-    default:
-      fatalError("Metadata type \(NumericMetadata.self) does not match fact type \(fact.type)")
+    guard let statement = try? db
+      .prepare("SELECT country_id, \(db_column) FROM country WHERE \(db_column) NOT NULL ORDER BY \(db_column) ASC") else {
+      fatalError("Could not retrieve ranks for fact '\(fact.id)'")
     }
-  }
 
-  func factMetadata(_ fact: Fact) -> NumericMetadata {
-    return factMetadata(fact, filter: Filter())
+    var result: [(String, Double)] = []
+    for row in statement {
+      result.append((row[0] as! String, row[1] as! Double))
+    }
+    
+    rankCache[fact] = result
+    
+    return result
+   
   }
 }

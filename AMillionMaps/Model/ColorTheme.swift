@@ -73,7 +73,10 @@ struct ColorTheme: Identifiable {
     ]
   }
   
-  func colorForImageValue(image: Double) -> UIColor {
+  func colorForImageValue(image: Double?) -> UIColor {
+    guard let image = image else {
+      return self.filtered
+    }
     return lowValue.interpolateRGBColorTo(end: highValue, fraction: CGFloat(image.clip(0, 1)))
   }
 }

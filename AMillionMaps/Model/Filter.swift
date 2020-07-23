@@ -28,6 +28,6 @@ struct Condition: Equatable {
     return lhs.fact == rhs.fact && lhs.value == rhs.value
   }
 
-  var fact: Fact
+  var fact: AnyFact
   var value: ConditionValue
 }

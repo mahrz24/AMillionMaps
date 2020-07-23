@@ -13,7 +13,7 @@ import Combine
 struct FactState : Identifiable, Hashable {
   var id: String { fact.id }
   var enabled: Bool
-  var fact: Fact
+  var fact: AnyFact
 }
 
 struct CheckboxToggleStyle: ToggleStyle {

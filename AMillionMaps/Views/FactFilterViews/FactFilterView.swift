@@ -9,13 +9,13 @@
 import SwiftUI
 
 struct FactFilterView: View {
-  let fact: Fact
+  let fact: AnyFact
   let action: (ConditionValue) -> Void
 
   var body: some View {
     switch self.fact.type {
     case .Constant(.numeric):
-      return AnyView(NumericFactFilterView(fact: self.fact, action: self.action))
+      return AnyView(NumericFactFilterView(fact: self.fact.unwrap(), action: self.action))
     default:
       return AnyView(Text("Unknown Fact Type"))
     }

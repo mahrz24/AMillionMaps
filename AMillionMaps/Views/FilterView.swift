@@ -12,7 +12,7 @@ import SwiftUI
 class FilterViewModel: ObservableObject {
   @ObservedObject var filterState: FilterState = Resolver.resolve()
 
-  @Published var filters: [Fact: Condition] = [:] {
+  @Published var filters: [AnyFact: Condition] = [:] {
     didSet {
       filterState.filter = Filter(conjunctions: [Conjunction(conditions: Array(filters.values))])
     }
@@ -31,7 +31,7 @@ struct FilterView: View {
   func generateRow(factState: FactState) -> AnyView {
     if factState.enabled {
       return AnyView(HStack {
-        FactFilterView(fact: factState.fact, action: { self.viewModel.filters[factState.fact] = Condition(fact: factState.fact, value: $0) })
+        FactFilterView(fact: factState.fact, action: { self.viewModel.filters[AnyFact(with: factState.fact)] = Condition(fact: factState.fact, value: $0) })
       })
     } else {
       return AnyView(EmptyView())

@@ -35,7 +35,7 @@ struct TickView: View {
 }
 
 struct NumericFactFilterView: View {
-  var fact: Fact
+  var fact: ConstantNumericFact
   var action: (ConditionValue) -> Void
   @Injected var countryProvider: CountryProvider
   @State private var filterRange: ClosedRange<Double> = 0 ... 1
@@ -43,28 +43,12 @@ struct NumericFactFilterView: View {
   @State private var factBounds: ClosedRange<Double> = 0 ... 1
   @State private var rank: [Double] = []
 
-  private var distributeByRank: Bool {
-    guard case let FactType.Constant(FactAtom.numeric(props)) = fact.type else {
-      fatalError("Fact type not matching fact filter view")
-    }
-
-    return props.distributeByRank
-  }
-
-  private var roundDigits: Int? {
-    guard case let FactType.Constant(FactAtom.numeric(props)) = fact.type else {
-      fatalError("Fact type not matching fact filter view")
-    }
-
-    return props.round
-  }
-
   var filterTicks: [Double] {
     let factBounds = toFactRange(filterBounds)
 
     var offset: Double = 1
 
-    if distributeByRank {
+    if fact.distributeByRank {
       offset += 1
     }
 
@@ -75,7 +59,7 @@ struct NumericFactFilterView: View {
     let lowerTick = ceil(factBounds.lowerBound / step) * step
     let ticks = stride(from: lowerTick, to: factBounds.upperBound, by: step)
 
-    if distributeByRank {
+    if fact.distributeByRank {
       return ticks.map(toSliderValue).map(toViewCoordinate)
     }
 
@@ -95,7 +79,7 @@ struct NumericFactFilterView: View {
   }
 
   func toFactValue(_ sliderValue: Double) -> Double {
-    if distributeByRank {
+    if fact.distributeByRank {
       if rank.count > 1 {
         let rankValue = sliderValue * Double(rank.count - 1)
         let index = Int(floor(rankValue))
@@ -114,7 +98,7 @@ struct NumericFactFilterView: View {
   }
 
   func toSliderValue(_ factValue: Double) -> Double {
-    if distributeByRank {
+    if fact.distributeByRank {
       if rank.count > 1 {
         let index = rank.firstIndex { $0 > factValue } ?? rank.count - 1
         return Double(index) / Double(rank.count - 1)
@@ -158,18 +142,18 @@ struct NumericFactFilterView: View {
                                        upperThumbSize: CGSize(width: 8, height: 18))
           )
         HStack {
-          Text(formatNumber(toFactValue(filterRange.lowerBound), truncate: self.roundDigits ?? 1)).font(.footnote)
+          Text(formatNumber(toFactValue(filterRange.lowerBound), truncate: self.fact.round ?? 1)).font(.footnote)
           Spacer()
-          Text(formatNumber(toFactValue(filterRange.upperBound), truncate: self.roundDigits ?? 1)).font(.footnote)
+          Text(formatNumber(toFactValue(filterRange.upperBound), truncate: self.fact.round ?? 1)).font(.footnote)
         }
       }
 
     }.onAppear {
-      let numericFactMetadata: NumericMetadata = self.countryProvider.factMetadata(self.fact)
+      let numericFactMetadata: NumericMetadata = self.countryProvider.factMetadata(AnyFact(with: self.fact)).unwrap()
       self.rank = self.countryProvider.factRank(self.fact).map { $0.1 }
       self.factBounds = numericFactMetadata.range
 
-      if !self.distributeByRank {
+      if !self.fact.distributeByRank {
         self.filterRange = numericFactMetadata.range
         self.filterBounds = numericFactMetadata.range
       }
@@ -180,11 +164,11 @@ struct NumericFactFilterView: View {
 struct NumericFactFilterView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-      NumericFactFilterView(fact: Fact(type: FactType.Constant(.numeric(NumericFactProperties(distributeByRank: false, round: 0))),
+      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: false, round: 0, type: FactType.Constant(.numeric),
                                        id: "Population",
                                        keyPath: \Country.population), action: { _ in print("HI") })
 
-      NumericFactFilterView(fact: Fact(type: FactType.Constant(.numeric(NumericFactProperties(distributeByRank: true, round: nil))),
+      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: true, round: nil, type: FactType.Constant(.numeric), 
                                        id: "Population",
                                        keyPath: \Country.population), action: { _ in print("HI") })
 

@@ -52,7 +52,7 @@ struct AnyDomainMapper: DomainMapper {
 
 protocol DomainMapperFactory: Identifiable {
   var id: String { get }
-  func createDomainMapper(_ fact: Fact) -> AnyDomainMapper
+  func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper
 }
 
 private class AbstractDomainMapperFactory: DomainMapperFactory {
@@ -60,7 +60,7 @@ private class AbstractDomainMapperFactory: DomainMapperFactory {
     fatalError("Must implement")
   }
     
-  func createDomainMapper(_ fact: Fact) -> AnyDomainMapper {
+  func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper {
     fatalError("Must implement")
   }
 }
@@ -76,7 +76,7 @@ private final class DomainMapperFactoryWrapper<H: DomainMapperFactory>: Abstract
     self.domainMapperFactory.id
   }
   
-  override func createDomainMapper(_ fact: Fact) -> AnyDomainMapper {
+  override func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper {
     return self.domainMapperFactory.createDomainMapper(fact)
   }
 }
@@ -92,7 +92,7 @@ public struct AnyDomainMapperFactory: DomainMapperFactory {
     self.abstractDomainMapperFactory.id
   }
   
-  func createDomainMapper(_ fact: Fact) -> AnyDomainMapper {
+  func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper {
     return self.abstractDomainMapperFactory.createDomainMapper(fact)
   }
 }
@@ -103,21 +103,20 @@ struct LinearDomainMapperFactory: DomainMapperFactory {
   @Injected var filterState: FilterState
   @Injected var countryProvider: CountryProvider
   
-  func createDomainMapper(_ fact: Fact) -> AnyDomainMapper {
+  func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper {
     let meta = countryProvider.factMetadata(fact, filter: filterState.filter)
-    return AnyDomainMapper(with: LinearDomainMapper(meta: meta))
+    return AnyDomainMapper(with: LinearDomainMapper(meta: meta.unwrap()))
   }
 }
 
 struct RankDomainMapperFactory: DomainMapperFactory {
   var id: String = "Rank"
 
-  
   @Injected var filterState: FilterState
   @Injected var countryProvider: CountryProvider
   
-  func createDomainMapper(_ fact: Fact) -> AnyDomainMapper {
-    let rank = countryProvider.factRank(fact, filter: filterState.filter)
+  func createDomainMapper(_ fact: AnyFact) -> AnyDomainMapper {
+    let rank = countryProvider.factRank(fact.unwrap(), filter: filterState.filter)
     return AnyDomainMapper(with: RankDomainMapper(rank: rank))
   }
 }
