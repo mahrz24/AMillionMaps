@@ -26,15 +26,15 @@ import Foundation
 
 extension Data: Value {
   public static var declaredDatatype: String {
-    return Blob.declaredDatatype
+    Blob.declaredDatatype
   }
 
   public static func fromDatatypeValue(_ dataValue: Blob) -> Data {
-    return Data(dataValue.bytes)
+    Data(dataValue.bytes)
   }
 
   public var datatypeValue: Blob {
-    return withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Blob in
+    withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Blob in
       Blob(bytes: pointer.baseAddress!, length: count)
     }
   }
@@ -42,15 +42,15 @@ extension Data: Value {
 
 extension Date: Value {
   public static var declaredDatatype: String {
-    return String.declaredDatatype
+    String.declaredDatatype
   }
 
   public static func fromDatatypeValue(_ stringValue: String) -> Date {
-    return dateFormatter.date(from: stringValue)!
+    dateFormatter.date(from: stringValue)!
   }
 
   public var datatypeValue: String {
-    return dateFormatter.string(from: self)
+    dateFormatter.string(from: self)
   }
 }
 

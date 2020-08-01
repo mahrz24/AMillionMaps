@@ -67,15 +67,15 @@ struct NumericFactFilterView: View {
   }
 
   func toViewCoordinate(_ rangeCoordinate: Double) -> Double {
-    return (rangeCoordinate - filterBounds.lowerBound) / (filterBounds.upperBound - filterBounds.lowerBound)
+    (rangeCoordinate - filterBounds.lowerBound) / (filterBounds.upperBound - filterBounds.lowerBound)
   }
 
   func toSliderRange(_ factRange: ClosedRange<Double>) -> ClosedRange<Double> {
-    return toSliderValue(factRange.lowerBound) ... toSliderValue(factRange.upperBound)
+    toSliderValue(factRange.lowerBound) ... toSliderValue(factRange.upperBound)
   }
 
   func toFactRange(_ sliderRange: ClosedRange<Double>) -> ClosedRange<Double> {
-    return toFactValue(sliderRange.lowerBound) ... toFactValue(sliderRange.upperBound)
+    toFactValue(sliderRange.lowerBound) ... toFactValue(sliderRange.upperBound)
   }
 
   func toFactValue(_ sliderValue: Double) -> Double {
@@ -111,7 +111,7 @@ struct NumericFactFilterView: View {
   }
 
   var body: some View {
-    return VStack {
+    VStack {
       HStack {
         Text(fact.id).font(.subheadline)
         Spacer()
@@ -149,7 +149,7 @@ struct NumericFactFilterView: View {
       }
 
     }.onAppear {
-      let numericFactMetadata: NumericMetadata = self.countryProvider.factMetadata(AnyFact(with: self.fact)).unwrap()
+      let numericFactMetadata: NumericMetadata = self.countryProvider.factMetadata(AnyFact(with: self.fact)).unwrap()!
       self.rank = self.countryProvider.factRank(self.fact).map { $0.1 }
       self.factBounds = numericFactMetadata.range
 
@@ -164,13 +164,13 @@ struct NumericFactFilterView: View {
 struct NumericFactFilterView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: false, round: 0, type: FactType.Constant(.numeric),
-                                       id: "Population",
-                                       keyPath: \Country.population), action: { _ in print("HI") })
+      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: false, round: 0,
+                                                      id: "Population",
+                                                      keyPath: \Country.population), action: { _ in print("HI") })
 
-      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: true, round: nil, type: FactType.Constant(.numeric), 
-                                       id: "Population",
-                                       keyPath: \Country.population), action: { _ in print("HI") })
+      NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: true, round: nil,
+                                                      id: "Population",
+                                                      keyPath: \Country.population), action: { _ in print("HI") })
 
     }.previewLayout(PreviewLayout.fixed(width: 250, height: 150))
       .padding()

@@ -16,21 +16,20 @@ class Country: Identifiable {
   }
 
   static let facts: [AnyFact] = [
-    AnyFact(with: ConstantNumericFact(distributeByRank: true, round: 0, type: FactType.Constant(.numeric),
-         id: "Population",
-         keyPath: \Country.population)),
-    AnyFact(with: ConstantNumericFact(distributeByRank: false, round: 0, type: FactType.Constant(.numeric),
-         id: "Area",
-         keyPath: \Country.area))
-//    Fact(type: FactType.Constant(.categorical(CategoricalFactProperties(categoryLabels: [
-//      "Sovereign",
-//      "Country",
-//      "Dependency",
-//      "Other"
-//    ]))
-//      ),
-//        id: "Type",
-//        keyPath: \Country.type),
+    AnyFact(with: ConstantNumericFact(distributeByRank: true, round: 0,
+                                      id: "Population",
+                                      keyPath: \Country.population)),
+    AnyFact(with: ConstantNumericFact(distributeByRank: false, round: 0,
+                                      id: "Area",
+                                      keyPath: \Country.area)),
+    AnyFact(with: ConstantCategoricalFact(categoryLabels: [
+        "Sovereign",
+      "Country",
+      "Dependency",
+      "Other",
+    ],
+                                          id: "Type",
+                                          keyPath: \Country.type)),
   ]
 
   static var filterFacts: [AnyFact] {
@@ -45,7 +44,7 @@ class Country: Identifiable {
     facts
   }
 
-  var type: Int?
-  var population: Double?
-  var area: Double?
+  var type: DomainValue?
+  var population: DomainValue?
+  var area: DomainValue?
 }

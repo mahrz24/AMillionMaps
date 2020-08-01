@@ -9,26 +9,25 @@
 import SwiftUI
 
 struct SettingsOverlayView<Content: View>: View {
-  
   let viewBuilder: () -> Content
-  
+
   init(_ viewBuilder: @escaping () -> Content) {
-      self.viewBuilder = viewBuilder
+    self.viewBuilder = viewBuilder
   }
-  
-    var body: some View {
-      ZStack {
-        BlurView(style: .light)
-        Rectangle().foregroundColor(Color.gray).opacity(0.25)
-        self.viewBuilder()
-      }
+
+  var body: some View {
+    ZStack {
+      BlurView(style: .light)
+      Rectangle().foregroundColor(Color.gray).opacity(0.25)
+      self.viewBuilder()
     }
+  }
 }
 
 struct SettingsOverlayView_Previews: PreviewProvider {
-    static var previews: some View {
-      SettingsOverlayView() {
-        Text("Hi")
-      }
+  static var previews: some View {
+    SettingsOverlayView {
+      Text("Hi")
     }
+  }
 }

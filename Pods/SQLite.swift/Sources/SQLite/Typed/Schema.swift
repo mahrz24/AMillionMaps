@@ -26,7 +26,7 @@ extension SchemaType {
   // MARK: - DROP TABLE / VIEW / VIRTUAL TABLE
 
   public func drop(ifExists: Bool = false) -> String {
-    return drop("TABLE", tableName(), ifExists)
+    drop("TABLE", tableName(), ifExists)
   }
 }
 
@@ -61,19 +61,19 @@ extension Table {
   // MARK: - ALTER TABLE … ADD COLUMN
 
   public func addColumn<V: Value>(_ name: Expression<V>, check: Expression<Bool>? = nil, defaultValue: V) -> String {
-    return addColumn(definition(name, V.declaredDatatype, nil, false, false, check, defaultValue, nil, nil))
+    addColumn(definition(name, V.declaredDatatype, nil, false, false, check, defaultValue, nil, nil))
   }
 
   public func addColumn<V: Value>(_ name: Expression<V>, check: Expression<Bool?>, defaultValue: V) -> String {
-    return addColumn(definition(name, V.declaredDatatype, nil, false, false, check, defaultValue, nil, nil))
+    addColumn(definition(name, V.declaredDatatype, nil, false, false, check, defaultValue, nil, nil))
   }
 
   public func addColumn<V: Value>(_ name: Expression<V?>, check: Expression<Bool>? = nil, defaultValue: V? = nil) -> String {
-    return addColumn(definition(name, V.declaredDatatype, nil, true, false, check, defaultValue, nil, nil))
+    addColumn(definition(name, V.declaredDatatype, nil, true, false, check, defaultValue, nil, nil))
   }
 
   public func addColumn<V: Value>(_ name: Expression<V?>, check: Expression<Bool?>, defaultValue: V? = nil) -> String {
-    return addColumn(definition(name, V.declaredDatatype, nil, true, false, check, defaultValue, nil, nil))
+    addColumn(definition(name, V.declaredDatatype, nil, true, false, check, defaultValue, nil, nil))
   }
 
   public func addColumn<V: Value>(_ name: Expression<V>, unique: Bool = false, check: Expression<Bool>? = nil, references table: QueryType,
@@ -117,7 +117,7 @@ extension Table {
   }
 
   fileprivate func addColumn(_ expression: Expressible) -> String {
-    return " ".join([
+    " ".join([
       Expression<Void>(literal: "ALTER TABLE"),
       tableName(),
       Expression<Void>(literal: "ADD COLUMN"),
@@ -128,7 +128,7 @@ extension Table {
   // MARK: - ALTER TABLE … RENAME TO
 
   public func rename(_ to: Table) -> String {
-    return rename(to: to)
+    rename(to: to)
   }
 
   // MARK: - CREATE INDEX
@@ -147,7 +147,7 @@ extension Table {
   // MARK: - DROP INDEX
 
   public func dropIndex(_ columns: Expressible..., ifExists: Bool = false) -> String {
-    return drop("INDEX", indexName(columns), ifExists)
+    drop("INDEX", indexName(columns), ifExists)
   }
 
   fileprivate func indexName(_ columns: [Expressible]) -> Expressible {
@@ -183,7 +183,7 @@ extension View {
   // MARK: - DROP VIEW
 
   public func drop(ifExists: Bool = false) -> String {
-    return drop("VIEW", tableName(), ifExists)
+    drop("VIEW", tableName(), ifExists)
   }
 }
 
@@ -203,7 +203,7 @@ extension VirtualTable {
   // MARK: - ALTER TABLE … RENAME TO
 
   public func rename(_ to: VirtualTable) -> String {
-    return rename(to: to)
+    rename(to: to)
   }
 }
 
@@ -349,7 +349,7 @@ public final class TableBuilder {
     column(name, V.declaredDatatype, nil, true, unique, check, defaultValue, nil, collate)
   }
 
-  fileprivate func column(
+  private func column(
     _ name: Expressible,
     _ datatype: String,
     _ primaryKey: PrimaryKey?,
@@ -382,7 +382,7 @@ public final class TableBuilder {
     primaryKey([compositeA, b, c, d])
   }
 
-  fileprivate func primaryKey(_ composite: [Expressible]) {
+  private func primaryKey(_ composite: [Expressible]) {
     definitions.append("PRIMARY KEY".prefix(composite))
   }
 
@@ -460,7 +460,7 @@ public final class TableBuilder {
     foreignKey(composite, references, update, delete)
   }
 
-  fileprivate func foreignKey(_ column: Expressible, _ references: (QueryType, Expressible), _ update: Dependency?, _ delete: Dependency?) {
+  private func foreignKey(_ column: Expressible, _ references: (QueryType, Expressible), _ update: Dependency?, _ delete: Dependency?) {
     let clauses: [Expressible?] = [
       "FOREIGN KEY".prefix(column),
       reference(references),
@@ -481,7 +481,7 @@ public enum PrimaryKey {
 public struct Module {
   fileprivate let name: String
 
-  fileprivate let arguments: [Expressible]
+  private let arguments: [Expressible]
 
   public init(_ name: String, _ arguments: [Expressible]) {
     self.init(name: name.quote(), arguments: arguments)
@@ -495,7 +495,7 @@ public struct Module {
 
 extension Module: Expressible {
   public var expression: Expression<Void> {
-    return name.wrap(arguments)
+    name.wrap(arguments)
   }
 }
 
@@ -515,7 +515,7 @@ private extension QueryType {
   }
 
   func rename(to: Self) -> String {
-    return " ".join([
+    " ".join([
       Expression<Void>(literal: "ALTER TABLE"),
       tableName(),
       Expression<Void>(literal: "RENAME TO"),
@@ -561,7 +561,7 @@ private func definition(
 }
 
 private func reference(_ primary: (QueryType, Expressible)) -> Expressible {
-  return " ".join([
+  " ".join([
     Expression<Void>(literal: "REFERENCES"),
     primary.0.tableName(qualified: false),
     "".wrap(primary.1) as Expression<Void>,

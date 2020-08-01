@@ -36,7 +36,7 @@ struct MapView: UIViewRepresentable {
     var colorUpdate: AnyCancellable?
     var layer: MGLFillStyleLayer?
     var bgLayer: MGLBackgroundStyleLayer?
-  
+
     @Injected var filterState: FilterState
     @Injected var colorAndDataState: ColorAndDataState
 
@@ -48,37 +48,36 @@ struct MapView: UIViewRepresentable {
       guard let layer = layer else {
         return
       }
-      
-      let conditions = colorAndDataState.countryColors.map { (key, value) in (NSExpression(forConstantValue: key), NSExpression(forConstantValue: value))
+
+      let conditions = colorAndDataState.countryColors
+        .map { key, value in (NSExpression(forConstantValue: key), NSExpression(forConstantValue: value))
         }.reduce(into: [:]) { $0[$1.0] = $1.1 }
-      
+
       if conditions.count > 0 {
         layer.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", filterState.countries.map { $0.id },
-        NSExpression(forMGLMatchingKey:
-        NSExpression(forKeyPath: "ADM0_A3"),
-        // NSExpression(format: "MGL_FUNCTION('get', 'ADM0_A3')"),
-          in: conditions, default: NSExpression(forConstantValue: colorAndDataState.colorTheme.lowValue)), colorAndDataState.colorTheme.filtered
-         )
+                                       NSExpression(forMGLMatchingKey:
+                                         NSExpression(forKeyPath: "ADM0_A3"),
+                                                    // NSExpression(format: "MGL_FUNCTION('get', 'ADM0_A3')"),
+                                         in: conditions,
+                                                    default: NSExpression(forConstantValue: colorAndDataState.colorTheme.lowValue)),
+                                       colorAndDataState.colorTheme.filtered)
       } else {
         layer.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", filterState.countries.map { $0.id },
-                                        colorAndDataState.colorTheme.lowValue, colorAndDataState.colorTheme.filtered)
-  
+                                       colorAndDataState.colorTheme.lowValue, colorAndDataState.colorTheme.filtered)
       }
-      
+
       if !colorAndDataState.showFiltered {
-        layer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0)", self.filterState.countries.map { $0.id })
+        layer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0)", filterState.countries.map { $0.id })
       } else {
         layer.fillOpacity = NSExpression(forConstantValue: 1)
       }
-      
+
       guard let bgLayer = bgLayer else {
         return
       }
-      
+
       bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.background)
-      
     }
-    
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
       guard let url = Bundle.main.url(forResource: "ne_10m_admin_0_countries", withExtension: "json") else {
@@ -91,7 +90,7 @@ struct MapView: UIViewRepresentable {
           self.update()
         }
       }
-      
+
       if colorUpdate == nil {
         print("Registering color update sink")
         colorUpdate = colorAndDataState.stateDidChange.receive(on: RunLoop.main).sink {
@@ -102,14 +101,13 @@ struct MapView: UIViewRepresentable {
       style.layers = []
 
       let countries: MGLShapeSource = MGLShapeSource(identifier: "countries", url: url)
-      
+
       let bgLayer = MGLBackgroundStyleLayer(identifier: "background")
       bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.background)
-      
+
       style.addLayer(bgLayer)
       self.bgLayer = bgLayer
 
-      
       let newLayer = MGLFillStyleLayer(identifier: "countries", source: countries)
       newLayer.sourceLayerIdentifier = "countries"
 

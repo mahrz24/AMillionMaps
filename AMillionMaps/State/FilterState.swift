@@ -11,16 +11,14 @@ import Foundation
 import Resolver
 import SQLite
 
-
 class FilterState: ObservableObject {
   @Injected var countryProvider: CountryProvider
-  
+
   var countriesDidChange = PassthroughSubject<Void, Never>()
 
-  
   @Published var filter: Filter = Filter() {
     didSet {
-      self.updateFilteredCountries()
+      updateFilteredCountries()
     }
   }
 
@@ -31,7 +29,7 @@ class FilterState: ObservableObject {
   }
 
   func updateFilteredCountries() {
-    countries = countryProvider.countries(self.filter)
+    countries = countryProvider.countries(filter)
     countriesDidChange.send()
   }
 }

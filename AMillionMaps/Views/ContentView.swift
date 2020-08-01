@@ -6,8 +6,8 @@
 //  Copyright © 2020 Malte Klemm. All rights reserved.
 //
 
-import SwiftUI
 import Resolver
+import SwiftUI
 
 enum SelectorViewState {
   case hidden
@@ -18,66 +18,66 @@ enum SelectorViewState {
 }
 
 struct ContentView: View {
-  
   // Global states needed for the fact selectors / other pickers
   @State var selectorState: SelectorViewState = .hidden
-  
+
   @ObservedObject var filterViewModel = FilterViewModel()
   @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
-  
+
   func generateSelectorView() -> AnyView {
-    switch(selectorState) {
-      case .filterFactSelection:
-        return AnyView(
-          FactSelectionView(self.filterViewModel).padding()
-        )
-      case .colorFactSelection:
+    switch selectorState {
+    case .filterFactSelection:
       return AnyView(
-        OptionalListPicker(.constant(Country.mapFacts), selected: self.$colorViewModel.fact) {
+        FactSelectionView(filterViewModel).padding()
+      )
+    case .colorFactSelection:
+      return AnyView(
+        OptionalListPicker(.constant(Country.mapFacts), selected: $colorViewModel.fact) {
           fact, selected in
           HStack {
             Image(systemName: selected ? "checkmark.square" : "square")
-            .resizable()
-            .frame(width: 14, height: 14)
+              .resizable()
+              .frame(width: 14, height: 14)
             Text(fact.id)
             Spacer()
           }
         }.padding()
       )
-      case .colorThemeSelection:
+    case .colorThemeSelection:
       return AnyView(
-        ListPicker(.constant(ColorTheme.allThemes()), selected: self.$colorViewModel.colorTheme) {
+        ListPicker(.constant(ColorTheme.allThemes()), selected: $colorViewModel.colorTheme) {
           fact, selected in
           HStack {
             Image(systemName: selected ? "checkmark.square" : "square")
-            .resizable()
-            .frame(width: 14, height: 14)
+              .resizable()
+              .frame(width: 14, height: 14)
             Text(fact.id)
             Spacer()
           }
         }.padding()
       )
-      case .domainMapperSelection:
+    case .domainMapperSelection:
       return AnyView(
         ListPicker(.constant([
           AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
-          AnyDomainMapperFactory(with: RankDomainMapperFactory())
-        ]), selected: self.$colorViewModel.domainMapperFactory) {
+          AnyDomainMapperFactory(with: RankDomainMapperFactory()),
+          AnyDomainMapperFactory(with: CategoricalDomainMapperFactory()),
+        ]), selected: $colorViewModel.domainMapperFactory) {
           fact, selected in
           HStack {
             Image(systemName: selected ? "checkmark.square" : "square")
-            .resizable()
-            .frame(width: 14, height: 14)
+              .resizable()
+              .frame(width: 14, height: 14)
             Text(fact.id)
             Spacer()
           }
         }.padding()
       )
-      default:
-        return AnyView(EmptyView())
+    default:
+      return AnyView(EmptyView())
     }
   }
-  
+
   var body: some View {
     GeometryReader { geometry in
       HStack {
@@ -90,13 +90,13 @@ struct ContentView: View {
         ZStack {
           VStack {
             MapView()
-            Text("Table")
+            TableView().frame(height: 200).clipped()
           }
           HStack {
             if self.selectorState == .hidden {
               EmptyView()
             } else {
-              SettingsOverlayView() {
+              SettingsOverlayView {
                 VStack {
                   HStack {
                     Button(action: { self.selectorState = .hidden }) {
@@ -104,7 +104,7 @@ struct ContentView: View {
                       Text("Close")
                     }
                     Spacer()
-                    }.padding().padding(.top, geometry.safeAreaInsets.top)
+                  }.padding().padding(.top, geometry.safeAreaInsets.top)
                   self.generateSelectorView()
                 }
               }.frame(width: 250)

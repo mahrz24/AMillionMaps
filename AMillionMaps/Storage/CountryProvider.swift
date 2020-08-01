@@ -14,21 +14,19 @@ import SQLite
 protocol CountryProvider {
   func countries(_ filter: Filter) -> [Country]
   func countryIds(_ filter: Filter) -> [String]
-  
+
   func factMetadata(_ fact: AnyFact, filter: Filter) -> AnyFactMetadata
   func factRank(_ fact: ConstantNumericFact, filter: Filter) -> [(String, Double)]
-  
+
   func factMetadata(_ fact: AnyFact) -> AnyFactMetadata
   func factRank(_ fact: ConstantNumericFact) -> [(String, Double)]
 }
 
 class SQLCountryProvider: CountryProvider {
-  
   var db: Connection
 
   private var countryCache: [String: Country] = [:]
   private var rankCache: [ConstantNumericFact: [(String, Double)]] = [:]
-
 
   init(db: Connection) {
     self.db = db
@@ -58,7 +56,7 @@ class SQLCountryProvider: CountryProvider {
       fatalError("Condition of fact type \(fact.type) cannot be converted")
     }
   }
-  
+
   func countryIds(_ filter: Filter) -> [String] {
     var condition = filter.conjunctions.map {
       conjunction in
@@ -132,9 +130,23 @@ class SQLCountryProvider: CountryProvider {
         for (i, fact) in facts.enumerated() {
           switch fact.type {
           case .Constant(.numeric):
-            let numericFact: ConstantNumericFact = fact.unwrap()
-            let keyPath = numericFact.keyPath as! WritableKeyPath<Country, Double?>
-            country[keyPath: keyPath] = row[i + 1] as! Double?
+            let numericFact: ConstantNumericFact = fact.unwrap()!
+            let keyPath = numericFact.keyPath as! WritableKeyPath<Country, DomainValue?>
+            if let value = row[i + 1] {
+              country[keyPath: keyPath] = DomainValue.Numeric(value as! Double)
+            }
+          case .Constant(.categorical):
+            let categoricalFact: ConstantCategoricalFact = fact.unwrap()!
+            let keyPath = categoricalFact.keyPath as! WritableKeyPath<Country, DomainValue?>
+            if let categoryLabels = categoricalFact.categoryLabels {
+              if let idx = row[i + 1] as! Double? {
+                country[keyPath: keyPath] = DomainValue.Categorical(categoryLabels[Int(idx)])
+              }
+            } else {
+              if let category = row[i + 1] {
+                country[keyPath: keyPath] = DomainValue.Categorical(category as! String)
+              }
+            }
           default:
             print("Not matched \(fact.id)")
           }
@@ -150,39 +162,42 @@ class SQLCountryProvider: CountryProvider {
     }
     return nil
   }
-  
+
   func factMetadata(_ fact: AnyFact, filter: Filter) -> AnyFactMetadata {
+    // TODO: make the fact provide the metadata using the provider
     switch fact.type {
     case .Constant(.numeric):
-      let numericFact: ConstantNumericFact = fact.unwrap()
+      let numericFact: ConstantNumericFact = fact.unwrap()!
       let factValues = factRank(numericFact, filter: filter).map { $0.1 }
       let minValue = factValues.min() ?? 0
       let maxValue = factValues.max() ?? 1
 
-      return AnyFactMetadata(with: NumericMetadata(range: minValue...maxValue))
+      return AnyFactMetadata(with: NumericMetadata(range: minValue ... maxValue))
+    case .Constant(.categorical):
+      return AnyFactMetadata(with: CategoricalMetadata())
     default:
-      return AnyFactMetadata(with: NumericMetadata(range: 0...1))
+      return AnyFactMetadata(with: NumericMetadata(range: 0 ... 1))
     }
   }
-  
+
   func factMetadata(_ fact: AnyFact) -> AnyFactMetadata {
     switch fact.type {
     case .Constant(.numeric):
-      let numericFact: ConstantNumericFact = fact.unwrap()
+      let numericFact: ConstantNumericFact = fact.unwrap()!
       let factValues = factRank(numericFact).map { $0.1 }
       let minValue = factValues.min() ?? 0
       let maxValue = factValues.max() ?? 1
 
-      return AnyFactMetadata(with: NumericMetadata(range: minValue...maxValue))
+      return AnyFactMetadata(with: NumericMetadata(range: minValue ... maxValue))
     default:
-      return AnyFactMetadata(with: NumericMetadata(range: 0...1))
+      return AnyFactMetadata(with: NumericMetadata(range: 0 ... 1))
     }
   }
-  
+
   func factRank(_ fact: ConstantNumericFact, filter: Filter) -> [(String, Double)] {
     let ids = countryIds(filter)
     let rank = factRank(fact)
-    
+
     return rank.filter { ids.contains($0.0) }
   }
 
@@ -190,8 +205,7 @@ class SQLCountryProvider: CountryProvider {
     if rankCache.keys.contains(fact) {
       return rankCache[fact] ?? []
     }
-    
-  
+
     let db_column = "country_\(fact.id.lowercased())"
 
     guard let statement = try? db
@@ -203,10 +217,9 @@ class SQLCountryProvider: CountryProvider {
     for row in statement {
       result.append((row[0] as! String, row[1] as! Double))
     }
-    
+
     rankCache[fact] = result
-    
+
     return result
-   
   }
 }

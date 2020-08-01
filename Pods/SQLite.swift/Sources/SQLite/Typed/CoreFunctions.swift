@@ -47,15 +47,15 @@ private enum Function: String {
   case ifnull
 
   func infix<T>(_ lhs: Expressible, _ rhs: Expressible, wrap: Bool = true) -> Expression<T> {
-    return rawValue.infix(lhs, rhs, wrap: wrap)
+    rawValue.infix(lhs, rhs, wrap: wrap)
   }
 
   func wrap<T>(_ expression: Expressible) -> Expression<T> {
-    return rawValue.wrap(expression)
+    rawValue.wrap(expression)
   }
 
   func wrap<T>(_ expressions: [Expressible]) -> Expression<T> {
-    return rawValue.wrap(", ".join(expressions))
+    rawValue.wrap(", ".join(expressions))
   }
 }
 
@@ -68,7 +68,7 @@ extension ExpressionType where UnderlyingType: Number {
   ///
   /// - Returns: A copy of the expression wrapped with the `abs` function.
   public var absoluteValue: Expression<UnderlyingType> {
-    return Function.abs.wrap(self)
+    Function.abs.wrap(self)
   }
 }
 
@@ -81,7 +81,7 @@ extension ExpressionType where UnderlyingType: _OptionalType, UnderlyingType.Wra
   ///
   /// - Returns: A copy of the expression wrapped with the `abs` function.
   public var absoluteValue: Expression<UnderlyingType> {
-    return Function.abs.wrap(self)
+    Function.abs.wrap(self)
   }
 }
 
@@ -129,7 +129,7 @@ extension ExpressionType where UnderlyingType: Value, UnderlyingType.Datatype ==
   ///
   /// - Returns: An expression calling the `random` function.
   public static func random() -> Expression<UnderlyingType> {
-    return Function.random.wrap([])
+    Function.random.wrap([])
   }
 }
 
@@ -143,7 +143,7 @@ extension ExpressionType where UnderlyingType == Data {
   ///
   /// - Returns: An expression calling the `randomblob` function.
   public static func random(_: Int) -> Expression<UnderlyingType> {
-    return Function.randomblob.wrap([])
+    Function.randomblob.wrap([])
   }
 
   /// Builds an expression representing the `zeroblob` function.
@@ -155,7 +155,7 @@ extension ExpressionType where UnderlyingType == Data {
   ///
   /// - Returns: An expression calling the `zeroblob` function.
   public static func allZeros(_: Int) -> Expression<UnderlyingType> {
-    return Function.zeroblob.wrap([])
+    Function.zeroblob.wrap([])
   }
 
   /// Builds a copy of the expression wrapped with the `length` function.
@@ -166,7 +166,7 @@ extension ExpressionType where UnderlyingType == Data {
   ///
   /// - Returns: A copy of the expression wrapped with the `length` function.
   public var length: Expression<Int> {
-    return Function.length.wrap(self)
+    Function.length.wrap(self)
   }
 }
 
@@ -179,7 +179,7 @@ extension ExpressionType where UnderlyingType == Data? {
   ///
   /// - Returns: A copy of the expression wrapped with the `length` function.
   public var length: Expression<Int?> {
-    return Function.length.wrap(self)
+    Function.length.wrap(self)
   }
 }
 
@@ -192,7 +192,7 @@ extension ExpressionType where UnderlyingType == String {
   ///
   /// - Returns: A copy of the expression wrapped with the `length` function.
   public var length: Expression<Int> {
-    return Function.length.wrap(self)
+    Function.length.wrap(self)
   }
 
   /// Builds a copy of the expression wrapped with the `lower` function.
@@ -203,7 +203,7 @@ extension ExpressionType where UnderlyingType == String {
   ///
   /// - Returns: A copy of the expression wrapped with the `lower` function.
   public var lowercaseString: Expression<UnderlyingType> {
-    return Function.lower.wrap(self)
+    Function.lower.wrap(self)
   }
 
   /// Builds a copy of the expression wrapped with the `upper` function.
@@ -214,7 +214,7 @@ extension ExpressionType where UnderlyingType == String {
   ///
   /// - Returns: A copy of the expression wrapped with the `upper` function.
   public var uppercaseString: Expression<UnderlyingType> {
-    return Function.upper.wrap(self)
+    Function.upper.wrap(self)
   }
 
   /// Builds a copy of the expression appended with a `LIKE` query against the
@@ -279,7 +279,7 @@ extension ExpressionType where UnderlyingType == String {
   /// - Returns: A copy of the expression appended with a `GLOB` query against
   ///   the given pattern.
   public func glob(_ pattern: String) -> Expression<Bool> {
-    return Function.glob.infix(self, pattern)
+    Function.glob.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `MATCH` query against
@@ -294,7 +294,7 @@ extension ExpressionType where UnderlyingType == String {
   /// - Returns: A copy of the expression appended with a `MATCH` query
   ///   against the given pattern.
   public func match(_ pattern: String) -> Expression<Bool> {
-    return Function.match.infix(self, pattern)
+    Function.match.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `REGEXP` query against
@@ -305,7 +305,7 @@ extension ExpressionType where UnderlyingType == String {
   /// - Returns: A copy of the expression appended with a `REGEXP` query
   ///   against the given pattern.
   public func regexp(_ pattern: String) -> Expression<Bool> {
-    return Function.regexp.infix(self, pattern)
+    Function.regexp.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `COLLATE` clause with
@@ -320,7 +320,7 @@ extension ExpressionType where UnderlyingType == String {
   /// - Returns: A copy of the expression appended with a `COLLATE` clause
   ///   with the given sequence.
   public func collate(_ collation: Collation) -> Expression<UnderlyingType> {
-    return Function.collate.infix(self, collation)
+    Function.collate.infix(self, collation)
   }
 
   /// Builds a copy of the expression wrapped with the `ltrim` function.
@@ -391,7 +391,7 @@ extension ExpressionType where UnderlyingType == String {
   ///
   /// - Returns: A copy of the expression wrapped with the `replace` function.
   public func replace(_ pattern: String, with replacement: String) -> Expression<UnderlyingType> {
-    return Function.replace.wrap([self, pattern, replacement])
+    Function.replace.wrap([self, pattern, replacement])
   }
 
   public func substring(_ location: Int, length: Int? = nil) -> Expression<UnderlyingType> {
@@ -402,7 +402,7 @@ extension ExpressionType where UnderlyingType == String {
   }
 
   public subscript(range: Range<Int>) -> Expression<UnderlyingType> {
-    return substring(range.lowerBound, length: range.upperBound - range.lowerBound)
+    substring(range.lowerBound, length: range.upperBound - range.lowerBound)
   }
 }
 
@@ -415,7 +415,7 @@ extension ExpressionType where UnderlyingType == String? {
   ///
   /// - Returns: A copy of the expression wrapped with the `length` function.
   public var length: Expression<Int?> {
-    return Function.length.wrap(self)
+    Function.length.wrap(self)
   }
 
   /// Builds a copy of the expression wrapped with the `lower` function.
@@ -426,7 +426,7 @@ extension ExpressionType where UnderlyingType == String? {
   ///
   /// - Returns: A copy of the expression wrapped with the `lower` function.
   public var lowercaseString: Expression<UnderlyingType> {
-    return Function.lower.wrap(self)
+    Function.lower.wrap(self)
   }
 
   /// Builds a copy of the expression wrapped with the `upper` function.
@@ -437,7 +437,7 @@ extension ExpressionType where UnderlyingType == String? {
   ///
   /// - Returns: A copy of the expression wrapped with the `upper` function.
   public var uppercaseString: Expression<UnderlyingType> {
-    return Function.upper.wrap(self)
+    Function.upper.wrap(self)
   }
 
   /// Builds a copy of the expression appended with a `LIKE` query against the
@@ -502,7 +502,7 @@ extension ExpressionType where UnderlyingType == String? {
   /// - Returns: A copy of the expression appended with a `GLOB` query against
   ///   the given pattern.
   public func glob(_ pattern: String) -> Expression<Bool?> {
-    return Function.glob.infix(self, pattern)
+    Function.glob.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `MATCH` query against
@@ -517,7 +517,7 @@ extension ExpressionType where UnderlyingType == String? {
   /// - Returns: A copy of the expression appended with a `MATCH` query
   ///   against the given pattern.
   public func match(_ pattern: String) -> Expression<Bool> {
-    return Function.match.infix(self, pattern)
+    Function.match.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `REGEXP` query against
@@ -528,7 +528,7 @@ extension ExpressionType where UnderlyingType == String? {
   /// - Returns: A copy of the expression appended with a `REGEXP` query
   ///   against the given pattern.
   public func regexp(_ pattern: String) -> Expression<Bool?> {
-    return Function.regexp.infix(self, pattern)
+    Function.regexp.infix(self, pattern)
   }
 
   /// Builds a copy of the expression appended with a `COLLATE` clause with
@@ -543,7 +543,7 @@ extension ExpressionType where UnderlyingType == String? {
   /// - Returns: A copy of the expression appended with a `COLLATE` clause
   ///   with the given sequence.
   public func collate(_ collation: Collation) -> Expression<UnderlyingType> {
-    return Function.collate.infix(self, collation)
+    Function.collate.infix(self, collation)
   }
 
   /// Builds a copy of the expression wrapped with the `ltrim` function.
@@ -614,7 +614,7 @@ extension ExpressionType where UnderlyingType == String? {
   ///
   /// - Returns: A copy of the expression wrapped with the `replace` function.
   public func replace(_ pattern: String, with replacement: String) -> Expression<UnderlyingType> {
-    return Function.replace.wrap([self, pattern, replacement])
+    Function.replace.wrap([self, pattern, replacement])
   }
 
   /// Builds a copy of the expression wrapped with the `substr` function.
@@ -649,7 +649,7 @@ extension ExpressionType where UnderlyingType == String? {
   ///
   /// - Returns: A copy of the expression wrapped with the `substr` function.
   public subscript(range: Range<Int>) -> Expression<UnderlyingType> {
-    return substring(range.lowerBound, length: range.upperBound - range.lowerBound)
+    substring(range.lowerBound, length: range.upperBound - range.lowerBound)
   }
 }
 
@@ -730,7 +730,7 @@ extension String {
 /// - Returns: A copy of the given expressions wrapped with the `ifnull`
 ///   function.
 public func ?? <V: Value>(optional: Expression<V?>, defaultValue: V) -> Expression<V> {
-  return Function.ifnull.wrap([optional, defaultValue])
+  Function.ifnull.wrap([optional, defaultValue])
 }
 
 /// Builds a copy of the given expressions wrapped with the `ifnull` function.
@@ -750,7 +750,7 @@ public func ?? <V: Value>(optional: Expression<V?>, defaultValue: V) -> Expressi
 /// - Returns: A copy of the given expressions wrapped with the `ifnull`
 ///   function.
 public func ?? <V: Value>(optional: Expression<V?>, defaultValue: Expression<V>) -> Expression<V> {
-  return Function.ifnull.wrap([optional, defaultValue])
+  Function.ifnull.wrap([optional, defaultValue])
 }
 
 /// Builds a copy of the given expressions wrapped with the `ifnull` function.
@@ -770,5 +770,5 @@ public func ?? <V: Value>(optional: Expression<V?>, defaultValue: Expression<V>)
 /// - Returns: A copy of the given expressions wrapped with the `ifnull`
 ///   function.
 public func ?? <V: Value>(optional: Expression<V?>, defaultValue: Expression<V?>) -> Expression<V> {
-  return Function.ifnull.wrap([optional, defaultValue])
+  Function.ifnull.wrap([optional, defaultValue])
 }

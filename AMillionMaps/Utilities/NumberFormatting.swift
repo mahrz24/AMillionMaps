@@ -27,7 +27,7 @@ extension Double {
 }
 
 func formatNumber(_ n: Int) -> String {
-  return formatNumber(Double(n))
+  formatNumber(Double(n))
 }
 
 func formatNumber(_ n: Double, truncate: Int = 3) -> String {

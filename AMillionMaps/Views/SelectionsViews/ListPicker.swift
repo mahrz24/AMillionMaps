@@ -9,43 +9,37 @@
 import SwiftUI
 
 struct ListPicker<Content: View, Data: Identifiable>: View {
-  
   @Binding var selections: [Data]
   @Binding var selected: Data
-  
+
   let viewBuilder: (Data, Bool) -> Content
 
-  
   init(_ selections: Binding<[Data]>, selected: Binding<Data>, _ viewBuilder: @escaping (Data, Bool) -> Content) {
     _selections = selections
     _selected = selected
     self.viewBuilder = viewBuilder
-    
   }
 
   var body: some View {
-      ScrollView {
-        VStack {
-          
-          ForEach(self.selections.indices) {
+    ScrollView {
+      VStack {
+        ForEach(self.selections.indices) {
           index in
-            Button(action: { self.selected = self.selections[index] }) {
-              self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
-            }
+          Button(action: { self.selected = self.selections[index] }) {
+            self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
           }
         }
       }
+    }
   }
 }
 
 struct OptionalListPicker<Content: View, Data: Hashable>: View {
-  
   @Binding var selections: [Data]
   @Binding var selected: Data?
-  
+
   let viewBuilder: (Data, Bool) -> Content
 
-  
   init(_ selections: Binding<[Data]>, selected: Binding<Data?>, _ viewBuilder: @escaping (Data, Bool) -> Content) {
     _selections = selections
     _selected = selected
@@ -53,24 +47,22 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
   }
 
   var body: some View {
-      ScrollView {
-        VStack {
-          
-            Button(action: { self.selected = nil }) {
-              HStack {
-                Text("None")
-                Spacer()
-              }
-            }
-          
-          ForEach(self.selections.indices) {
+    ScrollView {
+      VStack {
+        Button(action: { self.selected = nil }) {
+          HStack {
+            Text("None")
+            Spacer()
+          }
+        }
+
+        ForEach(self.selections.indices) {
           index in
-            Button(action: { self.selected = self.selections[index] }) {
-              self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
-            }
+          Button(action: { self.selected = self.selections[index] }) {
+            self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
           }
         }
       }
+    }
   }
 }
-

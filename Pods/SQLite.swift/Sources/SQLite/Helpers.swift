@@ -35,7 +35,7 @@
 public typealias Star = (Expression<Binding>?, Expression<Binding>?) -> Expression<Void>
 
 public func * (_: Expression<Binding>?, _: Expression<Binding>?) -> Expression<Void> {
-  return Expression(literal: "*")
+  Expression(literal: "*")
 }
 
 public protocol _OptionalType {
@@ -76,19 +76,19 @@ extension String {
   }
 
   func prefix(_ expressions: Expressible) -> Expressible {
-    return "\(self) ".wrap(expressions) as Expression<Void>
+    "\(self) ".wrap(expressions) as Expression<Void>
   }
 
   func prefix(_ expressions: [Expressible]) -> Expressible {
-    return "\(self) ".wrap(expressions) as Expression<Void>
+    "\(self) ".wrap(expressions) as Expression<Void>
   }
 
   func wrap<T>(_ expression: Expressible) -> Expression<T> {
-    return Expression("\(self)(\(expression.expression.template))", expression.expression.bindings)
+    Expression("\(self)(\(expression.expression.template))", expression.expression.bindings)
   }
 
   func wrap<T>(_ expressions: [Expressible]) -> Expression<T> {
-    return wrap(", ".join(expressions))
+    wrap(", ".join(expressions))
   }
 }
 
@@ -106,9 +106,9 @@ func transcode(_ literal: Binding?) -> String {
 }
 
 func value<A: Value>(_ v: Binding) -> A {
-  return A.fromDatatypeValue(v as! A.Datatype) as! A
+  A.fromDatatypeValue(v as! A.Datatype) as! A
 }
 
 func value<A: Value>(_ v: Binding?) -> A {
-  return value(v!)
+  value(v!)
 }

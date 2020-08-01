@@ -6,23 +6,21 @@
 //  Copyright © 2020 Malte Klemm. All rights reserved.
 //
 
-import SwiftUI
 import Resolver
-
+import SwiftUI
 
 struct ColorView: View {
-  
   @Binding var selectorViewState: SelectorViewState
   @ObservedObject var viewModel: ColorAndDataState
-  
+
   func selectedFactView() -> AnyView {
-    if let selectedFact = self.viewModel.fact {
+    if let selectedFact = viewModel.fact {
       return AnyView(Text(selectedFact.id))
     } else {
       return AnyView(Text("Tap here to select fact."))
     }
   }
-  
+
   var body: some View {
     VStack {
       HStack {
@@ -33,8 +31,8 @@ struct ColorView: View {
         Text("Visualize Fact:")
         Spacer()
         Button(action: { self.selectorViewState = .colorFactSelection }) {
-            selectedFactView()
-          }
+          selectedFactView()
+        }
       }
       HStack {
         Toggle(isOn: self.$viewModel.showFiltered) {
@@ -46,14 +44,14 @@ struct ColorView: View {
         Spacer()
         Button(action: { self.selectorViewState = .colorThemeSelection }) {
           Text(self.viewModel.colorTheme.label)
-          }
+        }
       }
       HStack {
         Text("Mapping:")
         Spacer()
         Button(action: { self.selectorViewState = .domainMapperSelection }) {
           Text(self.viewModel.domainMapperFactory.id)
-          }
+        }
       }
     }
   }

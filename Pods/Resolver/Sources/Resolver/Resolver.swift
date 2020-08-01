@@ -47,7 +47,7 @@ public protocol Resolving {
 
 extension Resolving {
   public var resolver: Resolver {
-    return Resolver.root
+    Resolver.root
   }
 }
 
@@ -108,7 +108,7 @@ public final class Resolver {
   @discardableResult
   public static func register<Service>(_ type: Service.Type = Service.self, name: String? = nil,
                                        factory: @escaping ResolverFactory<Service>) -> ResolverOptions<Service> {
-    return main.register(type, name: name, factory: { (_, _) -> Service? in factory() })
+    main.register(type, name: name, factory: { (_, _) -> Service? in factory() })
   }
 
   /// Static shortcut function used to register a specifc Service type and its instantiating factory method.
@@ -122,7 +122,7 @@ public final class Resolver {
   @discardableResult
   public static func register<Service>(_ type: Service.Type = Service.self, name: String? = nil,
                                        factory: @escaping ResolverFactoryResolver<Service>) -> ResolverOptions<Service> {
-    return main.register(type, name: name, factory: { (r, _) -> Service? in factory(r) })
+    main.register(type, name: name, factory: { (r, _) -> Service? in factory(r) })
   }
 
   /// Static shortcut function used to register a specifc Service type and its instantiating factory method.
@@ -136,7 +136,7 @@ public final class Resolver {
   @discardableResult
   public static func register<Service>(_ type: Service.Type = Service.self, name: String? = nil,
                                        factory: @escaping ResolverFactoryArguments<Service>) -> ResolverOptions<Service> {
-    return main.register(type, name: name, factory: factory)
+    main.register(type, name: name, factory: factory)
   }
 
   /// Registers a specifc Service type and its instantiating factory method.
@@ -150,7 +150,7 @@ public final class Resolver {
   @discardableResult
   public final func register<Service>(_ type: Service.Type = Service.self, name: String? = nil,
                                       factory: @escaping ResolverFactory<Service>) -> ResolverOptions<Service> {
-    return register(type, name: name, factory: { (_, _) -> Service? in factory() })
+    register(type, name: name, factory: { (_, _) -> Service? in factory() })
   }
 
   /// Registers a specifc Service type and its instantiating factory method.
@@ -164,7 +164,7 @@ public final class Resolver {
   @discardableResult
   public final func register<Service>(_ type: Service.Type = Service.self, name: String? = nil,
                                       factory: @escaping ResolverFactoryResolver<Service>) -> ResolverOptions<Service> {
-    return register(type, name: name, factory: { (r, _) -> Service? in factory(r) })
+    register(type, name: name, factory: { (r, _) -> Service? in factory(r) })
   }
 
   /// Registers a specifc Service type and its instantiating factory method.
@@ -402,7 +402,7 @@ extension Resolver {
 }
 
 /// Resolver scopes exist to control when resolution occurs and how resolved instances are cached. (If at all.)
-public protocol ResolverScope: class {
+public protocol ResolverScope: AnyObject {
   func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service?
 }
 
@@ -535,7 +535,7 @@ public final class ResolverScopeShare: ResolverScope {
 public final class ResolverScopeUnique: ResolverScope {
   public init() {}
   public final func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
-    return registration.resolve(resolver: resolver, args: args)
+    registration.resolve(resolver: resolver, args: args)
   }
 }
 
@@ -550,7 +550,7 @@ public final class ResolverScopeUnique: ResolverScope {
     // swiftlint:disable unused_setter_value
     @objc dynamic var resolving: Bool {
       get {
-        return true
+        true
       }
       set {
         if let vc = self as? StoryboardResolving {
@@ -582,12 +582,12 @@ public final class ResolverScopeUnique: ResolverScope {
     }
 
     public var wrappedValue: Service {
-      get { return service }
+      get { service }
       mutating set { service = newValue }
     }
 
     public var projectedValue: Injected<Service> {
-      get { return self }
+      get { self }
       mutating set { self = newValue }
     }
   }
@@ -608,7 +608,7 @@ public final class ResolverScopeUnique: ResolverScope {
     }
 
     public var isEmpty: Bool {
-      return service == nil
+      service == nil
     }
 
     public var wrappedValue: Service {
@@ -622,7 +622,7 @@ public final class ResolverScopeUnique: ResolverScope {
     }
 
     public var projectedValue: LazyInjected<Service> {
-      get { return self }
+      get { self }
       mutating set { self = newValue }
     }
 
@@ -643,12 +643,12 @@ public final class ResolverScopeUnique: ResolverScope {
     }
 
     public var wrappedValue: Service? {
-      get { return service }
+      get { service }
       mutating set { service = newValue }
     }
 
     public var projectedValue: OptionalInjected<Service> {
-      get { return self }
+      get { self }
       mutating set { self = newValue }
     }
   }
@@ -673,12 +673,12 @@ public final class ResolverScopeUnique: ResolverScope {
     }
 
     public var wrappedValue: Service {
-      get { return service }
+      get { service }
       mutating set { service = newValue }
     }
 
     public var projectedValue: ObservedObject<Service>.Wrapper {
-      return $service
+      $service
     }
   }
 #endif

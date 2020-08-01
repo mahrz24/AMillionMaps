@@ -47,44 +47,44 @@ private enum Operator: String {
   case concatenate = "||"
 
   func infix<T>(_ lhs: Expressible, _ rhs: Expressible, wrap: Bool = true) -> Expression<T> {
-    return rawValue.infix(lhs, rhs, wrap: wrap)
+    rawValue.infix(lhs, rhs, wrap: wrap)
   }
 
   func wrap<T>(_ expression: Expressible) -> Expression<T> {
-    return rawValue.wrap(expression)
+    rawValue.wrap(expression)
   }
 }
 
 public func + (lhs: Expression<String>, rhs: Expression<String>) -> Expression<String> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: Expression<String>, rhs: Expression<String?>) -> Expression<String?> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: Expression<String?>, rhs: Expression<String>) -> Expression<String?> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: Expression<String?>, rhs: Expression<String?>) -> Expression<String?> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: Expression<String>, rhs: String) -> Expression<String> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: Expression<String?>, rhs: String) -> Expression<String?> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: String, rhs: Expression<String>) -> Expression<String> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 public func + (lhs: String, rhs: Expression<String?>) -> Expression<String?> {
-  return Operator.concatenate.infix(lhs, rhs)
+  Operator.concatenate.infix(lhs, rhs)
 }
 
 // MARK: -
@@ -670,73 +670,73 @@ public func ~= <V: Value>(lhs: PartialRangeFrom<V>, rhs: Expression<V?>) -> Expr
 // MARK: -
 
 public func && (lhs: Expression<Bool>, rhs: Expression<Bool>) -> Expression<Bool> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Expression<Bool>, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Expression<Bool?>, rhs: Expression<Bool>) -> Expression<Bool?> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Expression<Bool?>, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Expression<Bool>, rhs: Bool) -> Expression<Bool> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Expression<Bool?>, rhs: Bool) -> Expression<Bool?> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Bool, rhs: Expression<Bool>) -> Expression<Bool> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func && (lhs: Bool, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.and.infix(lhs, rhs)
+  Operator.and.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool>, rhs: Expression<Bool>) -> Expression<Bool> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool>, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool?>, rhs: Expression<Bool>) -> Expression<Bool?> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool?>, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool>, rhs: Bool) -> Expression<Bool> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Expression<Bool?>, rhs: Bool) -> Expression<Bool?> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Bool, rhs: Expression<Bool>) -> Expression<Bool> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public func || (lhs: Bool, rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.or.infix(lhs, rhs)
+  Operator.or.infix(lhs, rhs)
 }
 
 public prefix func ! (rhs: Expression<Bool>) -> Expression<Bool> {
-  return Operator.not.wrap(rhs)
+  Operator.not.wrap(rhs)
 }
 
 public prefix func ! (rhs: Expression<Bool?>) -> Expression<Bool?> {
-  return Operator.not.wrap(rhs)
+  Operator.not.wrap(rhs)
 }
