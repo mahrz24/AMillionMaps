@@ -8,11 +8,19 @@
 
 import Foundation
 
-class Country: Identifiable {
+class Country: Identifiable, Hashable {
   var id: String
 
   init(id: String) {
     self.id = id
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
+  }
+
+  static func == (lhs: Country, rhs: Country) -> Bool {
+    lhs.id == rhs.id
   }
 
   static let facts: [AnyFact] = [

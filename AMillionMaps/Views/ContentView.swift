@@ -78,6 +78,15 @@ struct ContentView: View {
     }
   }
 
+  @State private var xScrollOffset: CGFloat = 0
+  @State private var yScrollOffset: CGFloat = 0
+
+  @State private var xOffset: CGFloat = 0
+  @State private var yOffset: CGFloat = 0
+
+  private var xTotalOffset: CGFloat { xOffset + xScrollOffset }
+  private var yTotalOffset: CGFloat { yOffset + yScrollOffset }
+
   var body: some View {
     GeometryReader { geometry in
       HStack {
@@ -88,9 +97,25 @@ struct ContentView: View {
           }
         }.frame(maxWidth: 300).padding(10)
         ZStack {
-          VStack {
+          VStack(spacing: 0) {
             MapView()
-            TableView().frame(height: 200).clipped()
+            TableView().frame(height: 350).padding(.bottom, 20)
+//            GeometryReader { geometry in
+//                  HStack() {
+//                    Circle().frame(width:100, height: 100).offset(x: self.xTotalOffset, y: self.yTotalOffset).gesture(DragGesture().onChanged { value in
+//                      print(value.location)
+//                      self.xScrollOffset = value.translation.width
+//                        self.yScrollOffset = value.translation.height
+//                    }.onEnded { value in
+//                      print("Ended")
+//                      self.xOffset += value.predictedEndTranslation.width
+//                      self.yOffset += value.predictedEndTranslation.height
+//                      self.xScrollOffset = 0
+//                      self.yScrollOffset = 0
+//
+//                    })
+//                    }.frame(height: 500).background(Color.red).clipped()
+//            }
           }
           HStack {
             if self.selectorState == .hidden {

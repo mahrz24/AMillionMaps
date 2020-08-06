@@ -10,14 +10,23 @@ import Resolver
 import SwiftUI
 
 struct TableView: View {
-  @Injected var filterState: FilterState
+  @ObservedObject var filterState: FilterState = Resolver.resolve()
+
+  @State var cols = ["x", "y", "z"].repeated(count: 2)
 
   private var numberOfItems: Int {
     Country.tableFacts.count
   }
 
   var body: some View {
-    TableWithHeadersView()
+    TableWithHeadersView(self.$filterState.countries, self.$cols, {
+      row in Text("\(row.id)")
+    }, {
+      col in Text("\(col)")
+    }) {
+      row, col in
+      Text("\(row.id) \(col)")
+    }
   }
 
 //      GeometryReader{ geometry in
