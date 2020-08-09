@@ -8,76 +8,70 @@
 
 import Resolver
 import SwiftUI
+import Combine
 
 struct TableView: View {
   @ObservedObject var filterState: FilterState = Resolver.resolve()
 
-  @State var cols = ["x", "y", "z"].repeated(count: 2)
+  @State var cols = Country.tableFacts
+  @State var countries: [Country] = []
 
+  @State private var filterUpdate: AnyCancellable? = nil
+  
   private var numberOfItems: Int {
     Country.tableFacts.count
   }
-
-  var body: some View {
-    TableWithHeadersView(self.$filterState.countries, self.$cols, {
-      row in Text("\(row.id)")
-    }, {
-      col in Text("\(col)")
-    }) {
-      row, col in
-      Text("\(row.id) \(col)")
+  
+  func update() {
+    countries = filterState.countries
+    countries.sort {
+      $0.id < $1.id
     }
   }
 
-//      GeometryReader{ geometry in
-//        ScrollView {
-//          VStack{
-//            HStack {
-//              VStack {
-//                ForEach(self.filterState.countries) {
-//                  country in
-//                  HStack {
-//                    Text(country.id).padding(8)
-//                    .frame(width: 150, height: 50)
-//                    .background(Color.orange)
-//                    .border(Color.red)
-//                    Spacer()
-//                  }
-//                }
-//              }
-//
-//              ForEach(Country.tableFacts, id: \.id) {
-//                fact in
-//                VStack {
-//                  ForEach(self.filterState.countries) {
-//                    country in
-//                    HStack {
-//                    self.format(country: country, fact: fact).padding(8)
-//                    .frame(width: 350, height: 50)
-//                    .background(Color.orange)
-//                    .border(Color.red)
-//                      Spacer()
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//
-//          }
-//        }.frame(width: geometry.size.width, height: geometry.size.height)
-//      }
-//    }
-
-  func format(country: Country, fact: AnyFact) -> some View {
-    if let value = country[keyPath: fact.keyPath] {
-      switch value {
-      case let .Categorical(category):
-        return Text(category)
-      case let .Numeric(value):
-        return Text("\(value)")
+  var body: some View {
+    TableWithHeadersView(self.$countries, self.$cols,
+                         colWidth: { fact in CGFloat(fact.columnAttribues.width ?? 150) },
+                         headerColWidth: 85,
+                         rowHeight: 30.0,
+                         {
+                           row in Text("\(row.id)")
+                         }, {
+                           col in Text("\(col.id)")
+    }) {
+      (country, fact) -> AnyView in
+      if let value = country[keyPath: fact.keyPath] {
+        if let formattedValue = fact.format(value) {
+          var resultStr = formattedValue.value
+          if let unit = formattedValue.unit {
+            resultStr += " \(unit)"
+          }
+          switch formattedValue.alignment {
+          case .left:
+            return AnyView(HStack{
+              Text(resultStr)
+              Spacer()
+            })
+          case .center:
+          return AnyView(HStack{
+            Text(resultStr)
+          })
+          case .right:
+          return AnyView(HStack{
+            Spacer()
+            Text(resultStr)
+            
+          })
+          }
+          
+        }
       }
-    } else {
-      return Text("N/A")
+      return AnyView(HStack { Text("N/A") })
+    }.onAppear() {
+      // TODO: Move this to a table state
+      self.filterUpdate = self.filterState.countriesDidChange.debounce(for: .milliseconds(50), scheduler: RunLoop.main).sink {
+        self.update()
+      }
     }
   }
 }

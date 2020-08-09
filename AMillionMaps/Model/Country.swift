@@ -24,12 +24,14 @@ class Country: Identifiable, Hashable {
   }
 
   static let facts: [AnyFact] = [
-    AnyFact(with: ConstantNumericFact(distributeByRank: true, round: 0,
+    AnyFact(with: ConstantNumericFact(distributeByRank: true, round: 0, unit: nil,
                                       id: "Population",
-                                      keyPath: \Country.population)),
-    AnyFact(with: ConstantNumericFact(distributeByRank: false, round: 0,
+                                      keyPath: \Country.population,
+                                      columnAttribues: ColumnAttributes(width: 200))),
+    AnyFact(with: ConstantNumericFact(distributeByRank: false, round: 0, unit: "km²",
                                       id: "Area",
-                                      keyPath: \Country.area)),
+                                      keyPath: \Country.area,
+                                      columnAttribues: ColumnAttributes(width: 200))),
     AnyFact(with: ConstantCategoricalFact(categoryLabels: [
         "Sovereign",
       "Country",
@@ -37,7 +39,8 @@ class Country: Identifiable, Hashable {
       "Other",
     ],
                                           id: "Type",
-                                          keyPath: \Country.type)),
+                                          keyPath: \Country.type,
+                                          columnAttribues: ColumnAttributes(width: 200))),
   ]
 
   static var filterFacts: [AnyFact] {

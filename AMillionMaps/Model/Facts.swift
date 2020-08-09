@@ -19,10 +19,30 @@ enum FactAtom {
   case categorical
 }
 
+enum FactAlignment {
+  case left
+  case center
+  case right
+}
+
+struct FormattedValue {
+  var value: String
+  var unit: String?
+  var alignment: FactAlignment
+}
+
+struct ColumnAttributes {
+  var width: Int?
+}
+
+
 protocol Fact: Identifiable, Hashable {
   var type: FactType { get }
   var id: String { get }
   var keyPath: KeyPath<Country, DomainValue?> { get }
+  var columnAttribues: ColumnAttributes { get }
+  
+  func format(_ value: DomainValue?) -> FormattedValue?
 }
 
 extension Fact {
@@ -33,13 +53,16 @@ extension Fact {
 
 private class AbstractFact: Fact {
   var type: FactType { fatalError("To be implemented") }
-
   var id: String { fatalError("To be implemented") }
-
   var keyPath: KeyPath<Country, DomainValue?> { fatalError("To be implemented") }
+  var columnAttribues: ColumnAttributes { fatalError("To be implemented") }
 
   static func == (lhs: AbstractFact, rhs: AbstractFact) -> Bool {
     lhs.id == rhs.id
+  }
+  
+  func format(_ value: DomainValue?) -> FormattedValue? {
+    fatalError("To be implemented")
   }
 }
 
@@ -53,6 +76,11 @@ private final class FactWrapper<H: Fact>: AbstractFact {
   override var type: FactType { fact.type }
   override var id: String { fact.id }
   override var keyPath: KeyPath<Country, DomainValue?> { fact.keyPath }
+  override var columnAttribues: ColumnAttributes { fact.columnAttribues }
+  
+  override func format(_ value: DomainValue?) -> FormattedValue? {
+    return fact.format(value)
+  }
 }
 
 struct AnyFact: Fact {
@@ -73,11 +101,17 @@ struct AnyFact: Fact {
   var type: FactType { abstractFact.type }
   var id: String { abstractFact.id }
   var keyPath: KeyPath<Country, DomainValue?> { abstractFact.keyPath }
+  var columnAttribues: ColumnAttributes { abstractFact.columnAttribues }
+  
+  func format(_ value: DomainValue?) -> FormattedValue? {
+    return abstractFact.format(value)
+  }
 }
 
 struct ConstantNumericFact: Fact {
   let distributeByRank: Bool
   let round: Int?
+  let unit: String?
 
   static func == (lhs: ConstantNumericFact, rhs: ConstantNumericFact) -> Bool {
     lhs.id == rhs.id
@@ -86,6 +120,22 @@ struct ConstantNumericFact: Fact {
   let type: FactType = .Constant(.numeric)
   var id: String
   var keyPath: KeyPath<Country, DomainValue?>
+  var columnAttribues: ColumnAttributes
+  
+  func format(_ value: DomainValue?) -> FormattedValue? {
+    switch value {
+    case let .Numeric(value):
+      var formattedValue = value.formatTruncated(places: self.round ?? 2)
+      
+      if let unit = unit {
+        formattedValue += " \(unit)"
+      }
+      
+      return FormattedValue(value: formattedValue, unit: unit, alignment: .right)
+    default:
+      return nil
+    }
+  }
 }
 
 struct ConstantCategoricalFact: Fact {
@@ -98,6 +148,16 @@ struct ConstantCategoricalFact: Fact {
   let type: FactType = .Constant(.categorical)
   var id: String
   var keyPath: KeyPath<Country, DomainValue?>
+  var columnAttribues: ColumnAttributes
+  
+  func format(_ value: DomainValue?) -> FormattedValue? {
+    switch value {
+    case let .Categorical(value):
+      return FormattedValue(value: value, alignment: .center)
+    default:
+      return nil
+    }
+  }
 }
 
 protocol FactMetadata {}
