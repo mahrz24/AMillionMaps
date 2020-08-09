@@ -15,6 +15,8 @@ struct TableView: View {
 
   @State var cols = Country.tableFacts
   @State var countries: [Country] = []
+  @State var orderById: AnyFact?
+  @State var orderDescending: Bool = true
 
   @State private var filterUpdate: AnyCancellable? = nil
   
@@ -25,7 +27,38 @@ struct TableView: View {
   func update() {
     countries = filterState.countries
     countries.sort {
-      $0.id < $1.id
+      var result: Bool = false
+      if let orderById = orderById {
+        let val0 = $0[keyPath: orderById.keyPath]
+        let val1 = $1[keyPath: orderById.keyPath]
+        
+        if val0 == val1 {
+          result = false
+        } else if (val0 == nil) {
+          result = false
+        } else if (val1 == nil) {
+          result = true
+        } else {
+          if let val0=val0, let val1=val1 {
+            result = val0 < val1
+          }
+          
+          if orderDescending {
+            result = !result
+          }
+        }
+        
+        
+      } else {
+        result = $0.id < $1.id
+        
+        if orderDescending {
+          result = !result
+        }
+      }
+      
+      
+      return result
     }
   }
 
@@ -37,7 +70,34 @@ struct TableView: View {
                          {
                            row in Text("\(row.id)")
                          }, {
-                           col in Text("\(col.id)")
+                          col in HStack{
+                            Spacer()
+                            Text("\(col.id)")
+                            Spacer()
+                            Button(action: {
+                              if col == self.orderById {
+                                if self.orderDescending {
+                                  self.orderDescending = false
+                                } else {
+                                  self.orderById = nil
+                                }
+                              } else {
+                                self.orderById = col
+                                self.orderDescending = true
+                              }
+                              self.update()
+                            }) {
+                              if col == self.orderById {
+                                if self.orderDescending {
+                                  Image(systemName: "arrow.down.square.fill")
+                                } else {
+                                  Image(systemName: "arrow.up.square.fill")
+                                }
+                              } else {
+                                Image(systemName: "arrow.up.arrow.down.square")
+                              }
+                            }
+                          }
     }) {
       (country, fact) -> AnyView in
       if let value = country[keyPath: fact.keyPath] {
@@ -69,7 +129,7 @@ struct TableView: View {
       return AnyView(HStack { Text("N/A") })
     }.onAppear() {
       // TODO: Move this to a table state
-      self.filterUpdate = self.filterState.countriesDidChange.debounce(for: .milliseconds(50), scheduler: RunLoop.main).sink {
+      self.filterUpdate = self.filterState.countriesDidChange.debounce(for: .milliseconds(5), scheduler: RunLoop.main).sink {
         self.update()
       }
     }

@@ -9,9 +9,23 @@
 import Foundation
 import Resolver
 
-enum DomainValue {
+enum DomainValue: Equatable{
   case Numeric(Double)
   case Categorical(String)
+  
+  static func <(left: DomainValue, right: DomainValue) -> Bool {
+    switch left {
+    case let .Categorical(category):
+      if case let .Categorical(rightCategory) = right {
+        return category < rightCategory
+      }
+    case let .Numeric(value):
+      if case let .Numeric(rightValue) = right {
+        return value < rightValue
+      }
+    }
+    return false
+  }
 }
 
 enum ImageValue {

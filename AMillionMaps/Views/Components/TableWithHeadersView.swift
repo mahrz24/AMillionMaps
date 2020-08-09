@@ -204,7 +204,7 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
             Spacer().frame(width: self.rangeColWidth(0 ..< colRange.startIndex), height: self.rowHeight)
 
             ForEach(colRange, id: \.hashValue) { colValue in
-              self.colHeaderBuilder(self.cols[colValue]).frame(width: self.colWidth(self.cols[colValue]), height: self.rowHeight)
+              self.colHeaderBuilder(self.cols[colValue]).padding(2).frame(width: self.colWidth(self.cols[colValue]), height: self.rowHeight)
             }
 
             Spacer().frame(width: self.rangeColWidth(colRange.endIndex ..< cols.count), height: self.rowHeight)

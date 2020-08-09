@@ -125,11 +125,7 @@ struct ConstantNumericFact: Fact {
   func format(_ value: DomainValue?) -> FormattedValue? {
     switch value {
     case let .Numeric(value):
-      var formattedValue = value.formatTruncated(places: self.round ?? 2)
-      
-      if let unit = unit {
-        formattedValue += " \(unit)"
-      }
+      let formattedValue = value.formatTruncated(places: self.round ?? 2)
       
       return FormattedValue(value: formattedValue, unit: unit, alignment: .right)
     default:
