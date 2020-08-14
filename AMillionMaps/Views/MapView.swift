@@ -115,7 +115,11 @@ struct MapView: UIViewRepresentable {
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
       guard let url = Bundle.main.url(forResource: "ne_10m_admin_0_countries", withExtension: "json") else {
-        fatalError("Failed to locate 'ne_10m_admin_0_countries.geo' in bundle.")
+        fatalError("Failed to locate 'ne_10m_admin_0_countries.geo.json' in bundle.")
+      }
+      
+      guard let labelsUrl = Bundle.main.url(forResource: "labels", withExtension: "geojson") else {
+        fatalError("Failed to locate 'labels.geojson' in bundle.")
       }
 
       if filterUpdate == nil {
@@ -152,92 +156,21 @@ struct MapView: UIViewRepresentable {
       layer = newLayer
       style.addSource(countries)
       
-      var pointFeatures: [MGLPointFeature] = []
       
-    
-      for feature in countriesFeatures.shapes {
-        switch feature {
-        case let multiPolyFeature as MGLMultiPolygonFeature:
-      
-          
-          for polygon in multiPolyFeature.polygons {
-            
-              let pointFeature = MGLPointFeature()
-                    var polyCoords: [CLLocationCoordinate2D] = []
-              
-              let coordsPointer = UnsafeMutablePointer<CLLocationCoordinate2D>.allocate(capacity: Int(polygon.pointCount))
-              polygon.getCoordinates(coordsPointer, range: NSMakeRange(0, Int(polygon.pointCount)))
-              
-              
-              for i in 0..<polygon.pointCount {
-                  polyCoords.append(coordsPointer[Int(i)])
-              }
-            
-            let point = polygonCenterOfMass(polygon: polyCoords.map { CGPoint(x: $0.longitude, y: $0.latitude)})
-                         
-                         pointFeature.coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(point.y), longitude: CLLocationDegrees(point.x))
-                         
-                         pointFeature.title = "Bar"
-                         // A feature’s attributes can used by runtime styling for things like text labels.
-                         pointFeature.attributes = [
-                           "name": feature.attribute(forKey: "ADM0_A3") ?? "NONE"
-                         ]
-                        
-                         pointFeatures.append(pointFeature)
-          }
-              
-             
-            
-        case let polygon as MGLPolygonFeature:
-          
-         
-            let pointFeature = MGLPointFeature()
-            
-            let coordsPointer = UnsafeMutablePointer<CLLocationCoordinate2D>.allocate(capacity: Int(polygon.pointCount))
-            polygon.getCoordinates(coordsPointer, range: NSMakeRange(0, Int(polygon.pointCount)))
-            
-            var polyCoords: [CLLocationCoordinate2D] = []
-            for i in 0..<polygon.pointCount {
-                polyCoords.append(coordsPointer[Int(i)])
-            }
-            
-            let point = polygonCenterOfMass(polygon: polyCoords.map { CGPoint(x: $0.longitude, y: $0.latitude)})
-            
-            pointFeature.coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(point.y), longitude: CLLocationDegrees(point.x))
-            
-            pointFeature.title = "Bar"
-            // A feature’s attributes can used by runtime styling for things like text labels.
-            pointFeature.attributes = [
-              "name": feature.attribute(forKey: "ADM0_A3")  ?? "NONE"
-            ]
-           
-            pointFeatures.append(pointFeature)
-      
-          default:
-          print(feature)
+      let labelData = try! Data(contentsOf: labelsUrl)
+      let labelFeatures = try! MGLShape(data: labelData, encoding: String.Encoding.utf8.rawValue) as! MGLShapeCollectionFeature
 
-          }
-      }
-  
-      
-      let pois: MGLShapeSource = MGLShapeSource(identifier: "pois", features: pointFeatures)
-      
-      let labelLayer = MGLSymbolStyleLayer(identifier: "coffeeshops", source: pois)
-      labelLayer.sourceLayerIdentifier = "pois"
-//      labelLayer.iconImageName = NSExpression(forConstantValue: "coffee")
-//      labelLayer.iconScale = NSExpression(forConstantValue: 0.5)
-      labelLayer.text = NSExpression(forKeyPath: "name")
-      labelLayer.textColor = NSExpression(forConstantValue: UIColor.white)
-             labelLayer.textFontSize = NSExpression(forConstantValue: NSNumber(value: 16))
-             labelLayer.iconAllowsOverlap = NSExpression(forConstantValue: true)
-//      labelLayer.textFontSize = NSExpression(forConstantValue: 16)
-//      labelLayer.textFontNames = NSExpression(forConstantValue: ["Trebuchet MS"])
-//      labelLayer.textTranslation = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 10, dy: 0)))
-//      labelLayer.textJustification = NSExpression(forConstantValue: "left")
-//      labelLayer.textAnchor = NSExpression(forConstantValue: "left")
-//      labelLayer.predicate = NSPredicate(format: "name == Foo")
-      style.addSource(pois)
+      let labels: MGLShapeSource = MGLShapeSource(identifier: "labels", shape: labelFeatures)
+
+      let labelLayer = MGLSymbolStyleLayer(identifier: "labels", source: labels)
+      labelLayer.sourceLayerIdentifier = "labels"
+      labelLayer.text = NSExpression(forKeyPath: "ADM0_A3")
+      labelLayer.textColor = NSExpression(forConstantValue: UIColor.black)
+      labelLayer.textFontSize = NSExpression(forConstantValue: NSNumber(value: 12))
+
+      style.addSource(labels)
       style.addLayer(labelLayer)
+      
       
       self.labelLayer = labelLayer
     
