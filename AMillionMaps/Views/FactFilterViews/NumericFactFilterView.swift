@@ -166,11 +166,13 @@ struct NumericFactFilterView_Previews: PreviewProvider {
     VStack {
       NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: false, round: 0, unit: nil,
                                                       id: "Population",
-                                                      keyPath: \Country.population, columnAttribues: ColumnAttributes(width: 200)), action: { _ in print("HI") })
+                                                      keyPath: \Country.population,
+                                                      columnAttribues: ColumnAttributes(width: 200)), action: { _ in print("HI") })
 
       NumericFactFilterView(fact: ConstantNumericFact(distributeByRank: true, round: nil, unit: nil,
                                                       id: "Population",
-                                                      keyPath: \Country.population, columnAttribues: ColumnAttributes(width: 200)), action: { _ in print("HI") })
+                                                      keyPath: \Country.population,
+                                                      columnAttribues: ColumnAttributes(width: 200)), action: { _ in print("HI") })
 
     }.previewLayout(PreviewLayout.fixed(width: 250, height: 150))
       .padding()

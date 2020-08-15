@@ -35,13 +35,12 @@ struct ColumnAttributes {
   var width: Int?
 }
 
-
 protocol Fact: Identifiable, Hashable {
   var type: FactType { get }
   var id: String { get }
   var keyPath: KeyPath<Country, DomainValue?> { get }
   var columnAttribues: ColumnAttributes { get }
-  
+
   func format(_ value: DomainValue?) -> FormattedValue?
 }
 
@@ -60,8 +59,8 @@ private class AbstractFact: Fact {
   static func == (lhs: AbstractFact, rhs: AbstractFact) -> Bool {
     lhs.id == rhs.id
   }
-  
-  func format(_ value: DomainValue?) -> FormattedValue? {
+
+  func format(_: DomainValue?) -> FormattedValue? {
     fatalError("To be implemented")
   }
 }
@@ -77,9 +76,9 @@ private final class FactWrapper<H: Fact>: AbstractFact {
   override var id: String { fact.id }
   override var keyPath: KeyPath<Country, DomainValue?> { fact.keyPath }
   override var columnAttribues: ColumnAttributes { fact.columnAttribues }
-  
+
   override func format(_ value: DomainValue?) -> FormattedValue? {
-    return fact.format(value)
+    fact.format(value)
   }
 }
 
@@ -102,9 +101,9 @@ struct AnyFact: Fact {
   var id: String { abstractFact.id }
   var keyPath: KeyPath<Country, DomainValue?> { abstractFact.keyPath }
   var columnAttribues: ColumnAttributes { abstractFact.columnAttribues }
-  
+
   func format(_ value: DomainValue?) -> FormattedValue? {
-    return abstractFact.format(value)
+    abstractFact.format(value)
   }
 }
 
@@ -121,12 +120,12 @@ struct ConstantNumericFact: Fact {
   var id: String
   var keyPath: KeyPath<Country, DomainValue?>
   var columnAttribues: ColumnAttributes
-  
+
   func format(_ value: DomainValue?) -> FormattedValue? {
     switch value {
     case let .Numeric(value):
-      let formattedValue = value.formatTruncated(places: self.round ?? 2)
-      
+      let formattedValue = value.formatTruncated(places: round ?? 2)
+
       return FormattedValue(value: formattedValue, unit: unit, alignment: .right)
     default:
       return nil
@@ -145,7 +144,7 @@ struct ConstantCategoricalFact: Fact {
   var id: String
   var keyPath: KeyPath<Country, DomainValue?>
   var columnAttribues: ColumnAttributes
-  
+
   func format(_ value: DomainValue?) -> FormattedValue? {
     switch value {
     case let .Categorical(value):

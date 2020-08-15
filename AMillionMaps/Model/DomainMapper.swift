@@ -9,11 +9,11 @@
 import Foundation
 import Resolver
 
-enum DomainValue: Equatable{
+enum DomainValue: Equatable {
   case Numeric(Double)
   case Categorical(String)
-  
-  static func <(left: DomainValue, right: DomainValue) -> Bool {
+
+  static func < (left: DomainValue, right: DomainValue) -> Bool {
     switch left {
     case let .Categorical(category):
       if case let .Categorical(rightCategory) = right {
@@ -35,12 +35,17 @@ enum ImageValue {
 
 protocol DomainMapper {
   func domainToImage(_ domain: DomainValue) -> ImageValue
+  func imageToDomain(_ image: ImageValue) -> DomainValue
 }
 
 private class AbstractDomainMapper: DomainMapper {
   typealias DomainValueType = Any
 
   func domainToImage(_: DomainValue) -> ImageValue {
+    fatalError("Must implement")
+  }
+  
+  func imageToDomain(_ image: ImageValue) -> DomainValue {
     fatalError("Must implement")
   }
 }
@@ -55,11 +60,20 @@ private final class DomainMapperWrapper<H: DomainMapper>: AbstractDomainMapper {
   override func domainToImage(_ domain: DomainValue) -> ImageValue {
     domainMapper.domainToImage(domain)
   }
+
+  override func imageToDomain(_ image: ImageValue) -> DomainValue {
+    domainMapper.imageToDomain(image)
+  }
+
 }
 
 struct AnyDomainMapper: DomainMapper {
   public func domainToImage(_ domain: DomainValue) -> ImageValue {
     abstractDomainMapper.domainToImage(domain)
+  }
+  
+  public func imageToDomain(_ image: ImageValue) -> DomainValue {
+    abstractDomainMapper.imageToDomain(image)
   }
 
   private var abstractDomainMapper: AbstractDomainMapper

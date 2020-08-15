@@ -25,6 +25,7 @@ class ColorAndDataState: ObservableObject {
   @Injected var filterState: FilterState
 
   @Published var countryColors: [String: UIColor] = [:]
+  @Published var countryLabels: [String: String] = [:]
 
   @Published var domainMapperFactory: AnyDomainMapperFactory = AnyDomainMapperFactory(with: LinearDomainMapperFactory()) {
     didSet {
@@ -51,6 +52,13 @@ class ColorAndDataState: ObservableObject {
     }
   }
 
+  @Published var labelFact: AnyFact? {
+    didSet {
+      // changing the label fact
+      updateCountryLabels()
+    }
+  }
+
   var stateDidChange = PassthroughSubject<Void, Never>()
   var filterChanged: AnyCancellable?
 
@@ -58,6 +66,17 @@ class ColorAndDataState: ObservableObject {
     filterChanged = filterState.countriesDidChange.debounce(for: .milliseconds(50), scheduler: RunLoop.main).sink {
       self.updateCountryColors()
     }
+  }
+
+  func updateCountryLabels() {
+    if let labelFact = labelFact {
+      let values = countryProvider.countries(Filter(conjunctions: [])).map { ($0.id, $0[keyPath: labelFact.keyPath]) }
+      countryLabels = values.reduce(into: [:]) { $0[$1.0] = labelFact.format($1.1)?.value }
+    } else {
+      countryLabels = [:]
+    }
+
+    stateDidChange.send()
   }
 
   func updateCountryColors() {

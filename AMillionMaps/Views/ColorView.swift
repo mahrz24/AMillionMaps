@@ -21,6 +21,14 @@ struct ColorView: View {
     }
   }
 
+  func selectedLabelFactView() -> AnyView {
+    if let selectedFact = viewModel.labelFact {
+      return AnyView(Text(selectedFact.id))
+    } else {
+      return AnyView(Text("Tap here to select fact."))
+    }
+  }
+
   var body: some View {
     VStack {
       HStack {
@@ -32,6 +40,13 @@ struct ColorView: View {
         Spacer()
         Button(action: { self.selectorViewState = .colorFactSelection }) {
           selectedFactView()
+        }
+      }
+      HStack {
+        Text("Label Fact:")
+        Spacer()
+        Button(action: { self.selectorViewState = .labelFactSelection }) {
+          selectedLabelFactView()
         }
       }
       HStack {

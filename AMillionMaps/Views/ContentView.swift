@@ -13,6 +13,7 @@ enum SelectorViewState {
   case hidden
   case filterFactSelection
   case colorFactSelection
+  case labelFactSelection
   case colorThemeSelection
   case domainMapperSelection
 }
@@ -33,6 +34,19 @@ struct ContentView: View {
     case .colorFactSelection:
       return AnyView(
         OptionalListPicker(.constant(Country.mapFacts), selected: $colorViewModel.fact) {
+          fact, selected in
+          HStack {
+            Image(systemName: selected ? "checkmark.square" : "square")
+              .resizable()
+              .frame(width: 14, height: 14)
+            Text(fact.id)
+            Spacer()
+          }
+        }.padding()
+      )
+    case .labelFactSelection:
+      return AnyView(
+        OptionalListPicker(.constant(Country.mapFacts), selected: $colorViewModel.labelFact) {
           fact, selected in
           HStack {
             Image(systemName: selected ? "checkmark.square" : "square")
@@ -98,24 +112,17 @@ struct ContentView: View {
         }.frame(maxWidth: 300).padding(10)
         ZStack {
           VStack(spacing: 0) {
-            MapView()
+            ZStack {
+              MapView()
+              VStack{
+                HStack {
+                  Spacer()
+                  LegendView().padding(25)
+                }
+                Spacer()
+              }
+            }
             TableView().frame(height: 350).padding(.bottom, 20)
-//            GeometryReader { geometry in
-//                  HStack() {
-//                    Circle().frame(width:100, height: 100).offset(x: self.xTotalOffset, y: self.yTotalOffset).gesture(DragGesture().onChanged { value in
-//                      print(value.location)
-//                      self.xScrollOffset = value.translation.width
-//                        self.yScrollOffset = value.translation.height
-//                    }.onEnded { value in
-//                      print("Ended")
-//                      self.xOffset += value.predictedEndTranslation.width
-//                      self.yOffset += value.predictedEndTranslation.height
-//                      self.xScrollOffset = 0
-//                      self.yScrollOffset = 0
-//
-//                    })
-//                    }.frame(height: 500).background(Color.red).clipped()
-//            }
           }
           HStack {
             if self.selectorState == .hidden {

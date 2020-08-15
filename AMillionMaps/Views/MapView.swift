@@ -13,38 +13,6 @@ import Mapbox
 import Resolver
 import SwiftUI
 
-func signedPolygonArea(polygon: [CGPoint]) -> CGFloat {
-    let nr = polygon.count
-    var area: CGFloat = 0
-    for i in 0 ..< nr {
-        let j = (i + 1) % nr
-        area = area + polygon[i].x * polygon[j].y
-        area = area - polygon[i].y * polygon[j].x
-    }
-    area = area/2.0
-    return area
-}
-
-func polygonCenterOfMass(polygon: [CGPoint]) -> CGPoint {
-    let nr = polygon.count
-    var centerX: CGFloat = 0
-    var centerY: CGFloat = 0
-    var area = signedPolygonArea(polygon: polygon)
-    for i in 0 ..< nr {
-        let j = (i + 1) % nr
-        let factor1 = polygon[i].x * polygon[j].y - polygon[j].x * polygon[i].y
-        centerX = centerX + (polygon[i].x + polygon[j].x) * factor1
-        centerY = centerY + (polygon[i].y + polygon[j].y) * factor1
-    }
-    area = area * 6.0
-    let factor2 = 1.0/area
-    centerX = centerX * factor2
-    centerY = centerY * factor2
-    let center = CGPoint.init(x: centerX, y: centerY)
-    return center
-}
-
-
 struct MapView: UIViewRepresentable {
   private let mapView: MGLMapView = MGLMapView(frame: .zero, styleURL: MGLStyle.streetsStyleURL)
 
@@ -65,7 +33,7 @@ struct MapView: UIViewRepresentable {
   final class Coordinator: NSObject, MGLMapViewDelegate {
     var control: MapView
     var filterUpdate: AnyCancellable?
-    var colorUpdate: AnyCancellable?
+    var colorAndDataUpdate: AnyCancellable?
     var layer: MGLFillStyleLayer?
     var bgLayer: MGLBackgroundStyleLayer?
     var labelLayer: MGLSymbolStyleLayer?
@@ -78,11 +46,10 @@ struct MapView: UIViewRepresentable {
     }
 
     func update() {
-      guard let layer = layer else {
+      guard let layer = layer, let labelLayer = labelLayer else {
         return
       }
-      
-      
+
       let conditions = colorAndDataState.countryColors
         .map { key, value in (NSExpression(forConstantValue: key), NSExpression(forConstantValue: value))
         }.reduce(into: [:]) { $0[$1.0] = $1.1 }
@@ -91,8 +58,7 @@ struct MapView: UIViewRepresentable {
         layer.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", filterState.countries.map { $0.id },
                                        NSExpression(forMGLMatchingKey:
                                          NSExpression(forKeyPath: "ADM0_A3"),
-                                                    // NSExpression(format: "MGL_FUNCTION('get', 'ADM0_A3')"),
-                                         in: conditions,
+                                                    in: conditions,
                                                     default: NSExpression(forConstantValue: colorAndDataState.colorTheme.lowValue)),
                                        colorAndDataState.colorTheme.filtered)
       } else {
@@ -100,11 +66,42 @@ struct MapView: UIViewRepresentable {
                                        colorAndDataState.colorTheme.lowValue, colorAndDataState.colorTheme.filtered)
       }
 
+      let labelConditions = colorAndDataState.countryLabels
+        .map { key, value in (NSExpression(forConstantValue: key), NSExpression(forConstantValue: value))
+        }.reduce(into: [:]) { $0[$1.0] = $1.1 }
+
+      if labelConditions.count > 0 {
+        labelLayer.text = NSExpression(forMGLMatchingKey:
+          NSExpression(forKeyPath: "ADM0_A3"),
+                                       in: labelConditions,
+                                       default: NSExpression(forConstantValue: ""))
+      }
+
+      // TODO: cache expressions?
+
+      var stops: [Double: NSExpression] = [:]
+
       if !colorAndDataState.showFiltered {
         layer.fillOpacity = NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0)", filterState.countries.map { $0.id })
+
+        for zoomLevel in stride(from: 0, to: 20, by: 0.25) {
+          let val = Double(zoomLevel)
+          let expr = NSExpression(format: "TERNARY(%f > (minlabel-2), %@, 0)", val,
+                                  NSExpression(format: "TERNARY(ADM0_A3 IN %@, 1, 0)", filterState.countries.map { $0.id }))
+          stops[zoomLevel] = expr
+        }
+
       } else {
         layer.fillOpacity = NSExpression(forConstantValue: 1)
+
+        for zoomLevel in stride(from: 0, to: 20, by: 0.25) {
+          let val = Double(zoomLevel)
+          let expr = NSExpression(format: "TERNARY(%f > (minlabel-2), 1, 0)", val)
+          stops[zoomLevel] = expr
+        }
       }
+
+      labelLayer.textOpacity = NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'linear', 0, %@)", stops)
 
       guard let bgLayer = bgLayer else {
         return
@@ -117,7 +114,7 @@ struct MapView: UIViewRepresentable {
       guard let url = Bundle.main.url(forResource: "ne_10m_admin_0_countries", withExtension: "json") else {
         fatalError("Failed to locate 'ne_10m_admin_0_countries.geo.json' in bundle.")
       }
-      
+
       guard let labelsUrl = Bundle.main.url(forResource: "labels", withExtension: "geojson") else {
         fatalError("Failed to locate 'labels.geojson' in bundle.")
       }
@@ -129,15 +126,15 @@ struct MapView: UIViewRepresentable {
         }
       }
 
-      if colorUpdate == nil {
+      if colorAndDataUpdate == nil {
         print("Registering color update sink")
-        colorUpdate = colorAndDataState.stateDidChange.receive(on: RunLoop.main).sink {
+        colorAndDataUpdate = colorAndDataState.stateDidChange.receive(on: RunLoop.main).sink {
           self.update()
         }
       }
 
       style.layers = []
-      
+
       let data = try! Data(contentsOf: url)
       let countriesFeatures = try! MGLShape(data: data, encoding: String.Encoding.utf8.rawValue) as! MGLShapeCollectionFeature
 
@@ -155,8 +152,7 @@ struct MapView: UIViewRepresentable {
       style.addLayer(newLayer)
       layer = newLayer
       style.addSource(countries)
-      
-      
+
       let labelData = try! Data(contentsOf: labelsUrl)
       let labelFeatures = try! MGLShape(data: labelData, encoding: String.Encoding.utf8.rawValue) as! MGLShapeCollectionFeature
 
@@ -164,16 +160,14 @@ struct MapView: UIViewRepresentable {
 
       let labelLayer = MGLSymbolStyleLayer(identifier: "labels", source: labels)
       labelLayer.sourceLayerIdentifier = "labels"
-      labelLayer.text = NSExpression(forKeyPath: "ADM0_A3")
       labelLayer.textColor = NSExpression(forConstantValue: UIColor.black)
       labelLayer.textFontSize = NSExpression(forConstantValue: NSNumber(value: 12))
 
       style.addSource(labels)
       style.addLayer(labelLayer)
-      
-      
+
       self.labelLayer = labelLayer
-    
+
       update()
     }
   }
