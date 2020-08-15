@@ -70,6 +70,11 @@ struct ColorTheme: Identifiable {
       makeNamedTheme(name: "classic", label: "Classic"),
     ]
   }
+  
+  func colorForImageValue(image: ImageValue?) -> Color {
+    let uiColor: UIColor = colorForImageValue(image: image)
+    return Color(uiColor)
+  }
 
   func colorForImageValue(image: ImageValue?) -> UIColor {
     guard let image = image else {

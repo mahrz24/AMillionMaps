@@ -15,15 +15,27 @@ struct LegendView: View {
   func buildLegend(_ fact: AnyFact) -> some View {
     switch fact.type {
     case .Constant(.numeric):
-      let numericFact: ConstantNumericFact = fact.unwrap()!
-      
       let domainMapper = colorViewModel.domainMapperFactory.createDomainMapper(fact)
       
+      let images = Array<Double>(stride(from: 0.0, to: 1.0, by: 0.1))
       
-      
-      return Text("numeric fact")
+      return AnyView(
+        VStack{
+        ForEach(images, id:\.hashValue) {
+        image -> AnyView in
+          if case let .Numeric(domain) = domainMapper.imageToDomain(.Numeric(image)) {
+            return AnyView(HStack{
+              Rectangle().foregroundColor(self.colorViewModel.colorTheme.colorForImageValue(image: .Numeric(image))).frame(width: 16, height: 16)
+              Text("\(domain)")
+            })
+          } else {
+            return AnyView(Text("No fact"))
+          }
+          }
+      }
+      )
     default:
-      return Text("No fact")
+      return AnyView(Text("No fact"))
     }
     
   }

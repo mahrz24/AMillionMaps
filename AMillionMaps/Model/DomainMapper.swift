@@ -156,6 +156,15 @@ struct LinearDomainMapper: DomainMapper {
       return .Numeric(0)
     }
   }
+  
+  func imageToDomain(_ image: ImageValue) -> DomainValue {
+    switch image {
+    case let .Numeric(image):
+      return .Numeric((image * (meta.range.upperBound - meta.range.lowerBound)) + meta.range.lowerBound)
+    default:
+      return .Numeric(0)
+    }
+  }
 }
 
 struct RankDomainMapperFactory: DomainMapperFactory {
@@ -180,6 +189,17 @@ struct RankDomainMapper: DomainMapper {
     case let .Numeric(domain):
       let index = rank.map { $0.1 }.firstIndex { $0 > domain } ?? rank.count - 1
       return .Numeric(Double(index) / Double(rank.count - 1))
+    default:
+      return .Numeric(0)
+    }
+  }
+  
+  func imageToDomain(_ image: ImageValue) -> DomainValue {
+    switch image {
+    case let .Numeric(image):
+      let index = Int(image * Double(rank.count - 1))
+      
+      return .Numeric(rank[index].1)
     default:
       return .Numeric(0)
     }
@@ -212,11 +232,24 @@ struct CategoricalDomainMapper: DomainMapper {
       return .Categorical(0)
     }
   }
+  
+  func imageToDomain(_ image: ImageValue) -> DomainValue {
+    switch image {
+    case let .Categorical(image):
+      return .Categorical(categories[image])
+    default:
+      return .Categorical(categories[0])
+    }
+  }
 }
 
 struct NullDomainMapper: DomainMapper {
   func domainToImage(_: DomainValue) -> ImageValue {
     .Numeric(0)
+  }
+  
+  func imageToDomain(_ image: ImageValue) -> DomainValue {
+    return .Numeric(0)
   }
 }
 
