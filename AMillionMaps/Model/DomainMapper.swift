@@ -28,7 +28,7 @@ enum DomainValue: Equatable {
   }
 }
 
-enum ImageValue {
+enum ImageValue: Hashable {
   case Numeric(Double)
   case Categorical(Int)
 }
@@ -44,8 +44,8 @@ private class AbstractDomainMapper: DomainMapper {
   func domainToImage(_: DomainValue) -> ImageValue {
     fatalError("Must implement")
   }
-  
-  func imageToDomain(_ image: ImageValue) -> DomainValue {
+
+  func imageToDomain(_: ImageValue) -> DomainValue {
     fatalError("Must implement")
   }
 }
@@ -64,14 +64,13 @@ private final class DomainMapperWrapper<H: DomainMapper>: AbstractDomainMapper {
   override func imageToDomain(_ image: ImageValue) -> DomainValue {
     domainMapper.imageToDomain(image)
   }
-
 }
 
 struct AnyDomainMapper: DomainMapper {
   public func domainToImage(_ domain: DomainValue) -> ImageValue {
     abstractDomainMapper.domainToImage(domain)
   }
-  
+
   public func imageToDomain(_ image: ImageValue) -> DomainValue {
     abstractDomainMapper.imageToDomain(image)
   }
@@ -156,7 +155,7 @@ struct LinearDomainMapper: DomainMapper {
       return .Numeric(0)
     }
   }
-  
+
   func imageToDomain(_ image: ImageValue) -> DomainValue {
     switch image {
     case let .Numeric(image):
@@ -193,12 +192,12 @@ struct RankDomainMapper: DomainMapper {
       return .Numeric(0)
     }
   }
-  
+
   func imageToDomain(_ image: ImageValue) -> DomainValue {
     switch image {
     case let .Numeric(image):
       let index = Int(image * Double(rank.count - 1))
-      
+
       return .Numeric(rank[index].1)
     default:
       return .Numeric(0)
@@ -232,7 +231,7 @@ struct CategoricalDomainMapper: DomainMapper {
       return .Categorical(0)
     }
   }
-  
+
   func imageToDomain(_ image: ImageValue) -> DomainValue {
     switch image {
     case let .Categorical(image):
@@ -247,9 +246,9 @@ struct NullDomainMapper: DomainMapper {
   func domainToImage(_: DomainValue) -> ImageValue {
     .Numeric(0)
   }
-  
-  func imageToDomain(_ image: ImageValue) -> DomainValue {
-    return .Numeric(0)
+
+  func imageToDomain(_: ImageValue) -> DomainValue {
+    .Numeric(0)
   }
 }
 

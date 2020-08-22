@@ -10,14 +10,14 @@ import Resolver
 import SwiftUI
 
 struct ColorView: View {
-  @Binding var selectorViewState: SelectorViewState
+  @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
   @ObservedObject var viewModel: ColorAndDataState
 
-  func selectedFactView() -> AnyView {
+  func selectedFactView() -> Text {
     if let selectedFact = viewModel.fact {
-      return AnyView(Text(selectedFact.id))
+      return Text(selectedFact.id)
     } else {
-      return AnyView(Text("Tap here to select fact."))
+      return Text("Tap here to select fact.")
     }
   }
 
@@ -38,15 +38,26 @@ struct ColorView: View {
       HStack {
         Text("Visualize Fact:")
         Spacer()
-        Button(action: { self.selectorViewState = .colorFactSelection }) {
-          selectedFactView()
+
+        SidePanelButton(panelBuilder: {
+          OptionalListPicker(.constant(Country.mapFacts), selected: self.$viewModel.fact) {
+            fact, selected in Checkbox(selected: selected, label: fact.id)
+          }
+        }
+        ) {
+          self.selectedFactView()
         }
       }
       HStack {
         Text("Label Fact:")
         Spacer()
-        Button(action: { self.selectorViewState = .labelFactSelection }) {
-          selectedLabelFactView()
+        SidePanelButton(panelBuilder: {
+          OptionalListPicker(.constant(Country.mapFacts), selected: self.$viewModel.labelFact) {
+            fact, selected in Checkbox(selected: selected, label: fact.id)
+          }
+        }
+        ) {
+          self.selectedLabelFactView()
         }
       }
       HStack {
@@ -57,14 +68,29 @@ struct ColorView: View {
       HStack {
         Text("Color Theme:")
         Spacer()
-        Button(action: { self.selectorViewState = .colorThemeSelection }) {
+        SidePanelButton(panelBuilder: {
+          ListPicker(.constant(ColorTheme.allThemes()), selected: self.$viewModel.colorTheme) {
+            fact, selected in Checkbox(selected: selected, label: fact.id)
+          }
+        }
+        ) {
           Text(self.viewModel.colorTheme.label)
         }
       }
       HStack {
         Text("Mapping:")
         Spacer()
-        Button(action: { self.selectorViewState = .domainMapperSelection }) {
+
+        SidePanelButton(panelBuilder: {
+          ListPicker(.constant([
+            AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
+            AnyDomainMapperFactory(with: RankDomainMapperFactory()),
+            AnyDomainMapperFactory(with: CategoricalDomainMapperFactory()),
+          ]), selected: self.$viewModel.domainMapperFactory) {
+            fact, selected in Checkbox(selected: selected, label: fact.id)
+          }
+        }
+        ) {
           Text(self.viewModel.domainMapperFactory.id)
         }
       }
@@ -74,6 +100,6 @@ struct ColorView: View {
 
 struct ColorView_Previews: PreviewProvider {
   static var previews: some View {
-    ColorView(selectorViewState: .constant(.hidden), viewModel: ColorAndDataState())
+    ColorView(viewModel: ColorAndDataState())
   }
 }

@@ -8,6 +8,21 @@
 
 import SwiftUI
 
+struct Checkbox: View {
+  let selected: Bool
+  let label: String
+
+  var body: some View {
+    HStack {
+      Image(systemName: selected ? "checkmark.square" : "square")
+        .resizable()
+        .frame(width: 14, height: 14)
+      Text(label)
+      Spacer()
+    }
+  }
+}
+
 struct ListPicker<Content: View, Data: Identifiable>: View {
   @Binding var selections: [Data]
   @Binding var selected: Data
@@ -27,6 +42,42 @@ struct ListPicker<Content: View, Data: Identifiable>: View {
           index in
           Button(action: { self.selected = self.selections[index] }) {
             self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
+          }
+        }
+      }
+    }
+  }
+}
+
+struct DataState<T: Identifiable>: Identifiable {
+  var id: T.ID { data.id }
+  var enabled: Bool
+  var data: T
+}
+
+
+struct MultiListPicker<Content: View, Data: Identifiable>: View {
+  @Binding var selections: [DataState<Data>]
+
+  let viewBuilder: (Data, Bool) -> Content
+  let action: (() -> ())?
+
+  init(_ selections: Binding<[DataState<Data>]>, action: (() -> ())? = nil, @ViewBuilder viewBuilder: @escaping (Data, Bool) -> Content) {
+    _selections = selections
+    self.action = action
+    self.viewBuilder = viewBuilder
+  }
+
+  var body: some View {
+    ScrollView {
+      VStack {
+        ForEach(self.selections.indices) {
+          index in
+          Button(action: {
+            self.selections[index].enabled.toggle()
+            self.action?()
+          }) {
+            self.viewBuilder(self.selections[index].data, self.selections[index].enabled)
           }
         }
       }

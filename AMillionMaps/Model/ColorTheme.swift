@@ -50,13 +50,17 @@ extension UIColor {
 struct ColorTheme: Identifiable {
   var id: String { label }
   var label: String
+
+  var uiBackground: Color
+
   var background: UIColor
   var filtered: UIColor
   var lowValue: UIColor
   var highValue: UIColor
 
   static func makeNamedTheme(name: String, label: String) -> ColorTheme {
-    ColorTheme(label: label, background: UIColor(named: "\(name).background")!, filtered: UIColor(named: "\(name).filtered")!,
+    ColorTheme(label: label, uiBackground: Color("\(name).uiBackground"), background: UIColor(named: "\(name).background")!,
+               filtered: UIColor(named: "\(name).filtered")!,
                lowValue: UIColor(named: "\(name).lowValue")!, highValue: UIColor(named: "\(name).highValue")!)
   }
 
@@ -70,7 +74,7 @@ struct ColorTheme: Identifiable {
       makeNamedTheme(name: "classic", label: "Classic"),
     ]
   }
-  
+
   func colorForImageValue(image: ImageValue?) -> Color {
     let uiColor: UIColor = colorForImageValue(image: image)
     return Color(uiColor)

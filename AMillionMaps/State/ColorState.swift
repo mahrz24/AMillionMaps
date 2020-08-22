@@ -87,6 +87,7 @@ class ColorAndDataState: ObservableObject {
       let domainMapper = domainMapperFactory.createDomainMapper(fact)
 
       let normalizedValues = mapping.mapValues { liftDomainMapper(domainMapper.domainToImage)($0) }
+
       countryColors = normalizedValues.mapValues(colorTheme.colorForImageValue)
     } else {
       countryColors = [:]

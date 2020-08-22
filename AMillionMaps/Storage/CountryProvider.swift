@@ -52,6 +52,28 @@ class SQLCountryProvider: CountryProvider {
       condition += " \(db_column) <= \(value.upperBound)"
 
       return "(\(condition))"
+    
+    case .Constant(.categorical):
+      let db_column = "country_\(fact.id.lowercased())"
+      guard case let ConditionValue.categorical(values) = condition.value else {
+        fatalError("Condition fact type \(fact.type) and condition value \(condition.value) are not matching.")
+      }
+      
+      var options: [String] = []
+      
+      let categoricalFact: ConstantCategoricalFact = fact.unwrap()!
+      if let categoryLabels = categoricalFact.categoryLabels {
+        options = values.map({"\(categoryLabels.firstIndex(of: $0) ?? 0)"})
+      } else {
+        options = values.map({"\"\($0)\""})
+      }
+    
+      let condition: String = "\(db_column) IN (\(options.joined(separator: ", ")))"
+      
+      print(condition)
+      
+      return "(\(condition))"
+    
     default:
       fatalError("Condition of fact type \(fact.type) cannot be converted")
     }
@@ -174,7 +196,7 @@ class SQLCountryProvider: CountryProvider {
 
       return AnyFactMetadata(with: NumericMetadata(range: minValue ... maxValue))
     case .Constant(.categorical):
-      return AnyFactMetadata(with: CategoricalMetadata())
+      return factMetadata(fact)
     default:
       return AnyFactMetadata(with: NumericMetadata(range: 0 ... 1))
     }
@@ -189,6 +211,25 @@ class SQLCountryProvider: CountryProvider {
       let maxValue = factValues.max() ?? 1
 
       return AnyFactMetadata(with: NumericMetadata(range: minValue ... maxValue))
+    case .Constant(.categorical):
+      let categoricalFact: ConstantCategoricalFact = fact.unwrap()!
+
+      let db_column = "country_\(categoricalFact.id.lowercased())"
+
+      guard let statement = try? db
+        .prepare("SELECT MIN(\(db_column)), MAX(\(db_column)) FROM country WHERE \(db_column) NOT NULL") else {
+        fatalError("Could not retrieve ranks for fact '\(fact.id)'")
+      }
+
+      var minValue = 0
+      var maxValue = 1
+
+      if let row = statement.next() {
+        minValue = Int(row[0] as! Double)
+        maxValue = Int(row[1] as! Double)
+      }
+
+      return AnyFactMetadata(with: CategoricalMetadata(range: minValue ... maxValue))
     default:
       return AnyFactMetadata(with: NumericMetadata(range: 0 ... 1))
     }

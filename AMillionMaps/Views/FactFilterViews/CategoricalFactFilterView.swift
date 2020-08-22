@@ -19,6 +19,7 @@ struct CategoricalFactFilterView: View {
   @State private var selectedCategories: [DataState<String>] = []
 
   var body: some View {
+    
     VStack {
       HStack {
         Text(fact.id).font(.subheadline)
@@ -26,16 +27,27 @@ struct CategoricalFactFilterView: View {
       }
 
       HStack {
-        MultiSelect<ZStack, String>($selectedCategories) {
-          category, enabled in
-          ZStack {
-            self.rectangle(enabled)
-            Text(category).lineLimit(1).font(.footnote).foregroundColor(Color.white)
+        HStack {
+        ForEach(self.selectedCategories, id: \.id) {
+            category in
+            ZStack {
+              self.rectangle(category.enabled)
+              Text(category.data).lineLimit(1).font(.footnote).foregroundColor(Color.white)
+            }
           }
+        }
+        SidePanelButton(panelBuilder: {
+          MultiListPicker(self.$selectedCategories, action: {
+            self.action(ConditionValue.categorical(self.selectedCategories.filter(\.enabled).map(\.data)))
+          }) {
+            category, selected in Checkbox(selected: selected, label: category)
+          }
+        }) {
+         Text("+")
         }
       }
     }.onAppear {
-      self.selectedCategories = self.fact.categoryLabels!.map { DataState<String>(enabled: false, data: $0) }
+      self.selectedCategories = self.fact.categoryLabels!.map { DataState<String>(enabled: true, data: $0) }
     }
   }
 

@@ -9,142 +9,68 @@
 import Resolver
 import SwiftUI
 
-enum SelectorViewState {
-  case hidden
-  case filterFactSelection
-  case colorFactSelection
-  case labelFactSelection
-  case colorThemeSelection
-  case domainMapperSelection
-}
-
 struct ContentView: View {
   // Global states needed for the fact selectors / other pickers
-  @State var selectorState: SelectorViewState = .hidden
 
+  // TODO: check if this should also be resolved and why not merged with filter state?
   @ObservedObject var filterViewModel = FilterViewModel()
-  @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
 
-  func generateSelectorView() -> AnyView {
-    switch selectorState {
-    case .filterFactSelection:
-      return AnyView(
-        FactSelectionView(filterViewModel).padding()
-      )
-    case .colorFactSelection:
-      return AnyView(
-        OptionalListPicker(.constant(Country.mapFacts), selected: $colorViewModel.fact) {
-          fact, selected in
+  @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
+  @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
+
+  func generateLeftSidePanelSelector(_ geometry: GeometryProxy) -> AnyView {
+    // TODO make two properties and a simple if / else out it
+    switch selectionViewModel.leftSidePanelState {
+    case let .visible(viewBuilder):
+      return AnyView(SettingsOverlayView {
+        VStack {
           HStack {
-            Image(systemName: selected ? "checkmark.square" : "square")
-              .resizable()
-              .frame(width: 14, height: 14)
-            Text(fact.id)
+            Button(action: { self.selectionViewModel.leftSidePanelState = .hidden }) {
+              Image(systemName: "chevron.left.square.fill")
+              Text("Close")
+            }
             Spacer()
-          }
+          }.padding(.top, geometry.safeAreaInsets.top)
+          viewBuilder().padding(.top, 10)
         }.padding()
-      )
-    case .labelFactSelection:
-      return AnyView(
-        OptionalListPicker(.constant(Country.mapFacts), selected: $colorViewModel.labelFact) {
-          fact, selected in
-          HStack {
-            Image(systemName: selected ? "checkmark.square" : "square")
-              .resizable()
-              .frame(width: 14, height: 14)
-            Text(fact.id)
-            Spacer()
-          }
-        }.padding()
-      )
-    case .colorThemeSelection:
-      return AnyView(
-        ListPicker(.constant(ColorTheme.allThemes()), selected: $colorViewModel.colorTheme) {
-          fact, selected in
-          HStack {
-            Image(systemName: selected ? "checkmark.square" : "square")
-              .resizable()
-              .frame(width: 14, height: 14)
-            Text(fact.id)
-            Spacer()
-          }
-        }.padding()
-      )
-    case .domainMapperSelection:
-      return AnyView(
-        ListPicker(.constant([
-          AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
-          AnyDomainMapperFactory(with: RankDomainMapperFactory()),
-          AnyDomainMapperFactory(with: CategoricalDomainMapperFactory()),
-        ]), selected: $colorViewModel.domainMapperFactory) {
-          fact, selected in
-          HStack {
-            Image(systemName: selected ? "checkmark.square" : "square")
-              .resizable()
-              .frame(width: 14, height: 14)
-            Text(fact.id)
-            Spacer()
-          }
-        }.padding()
-      )
-    default:
+      }.frame(width: 250))
+    case .hidden:
       return AnyView(EmptyView())
     }
   }
 
-  @State private var xScrollOffset: CGFloat = 0
-  @State private var yScrollOffset: CGFloat = 0
-
-  @State private var xOffset: CGFloat = 0
-  @State private var yOffset: CGFloat = 0
-
-  private var xTotalOffset: CGFloat { xOffset + xScrollOffset }
-  private var yTotalOffset: CGFloat { yOffset + yScrollOffset }
-
   var body: some View {
-    GeometryReader { geometry in
-      HStack {
-        ZStack {
-          VStack {
-            FilterView(selectorViewState: self.$selectorState, viewModel: self.filterViewModel).padding(.top, geometry.safeAreaInsets.top)
-            ColorView(selectorViewState: self.$selectorState, viewModel: self.colorViewModel).frame(minHeight: 300)
-          }
-        }.frame(maxWidth: 300).padding(10)
-        ZStack {
-          VStack(spacing: 0) {
-            ZStack {
-              MapView()
-              VStack{
-                HStack {
-                  Spacer()
-                  LegendView().padding(25)
-                }
-                Spacer()
-              }
+    ZStack {
+      Rectangle().foregroundColor(colorViewModel.colorTheme.uiBackground).edgesIgnoringSafeArea(.all)
+      GeometryReader { geometry in
+        HStack {
+          ZStack {
+            VStack {
+              FilterView(viewModel: self.filterViewModel).padding(.top, geometry.safeAreaInsets.top)
+              ColorView(viewModel: self.colorViewModel).frame(minHeight: 300)
             }
-            TableView().frame(height: 350).padding(.bottom, 20)
-          }
-          HStack {
-            if self.selectorState == .hidden {
-              EmptyView()
-            } else {
-              SettingsOverlayView {
+          }.frame(maxWidth: 300).padding(10)
+          ZStack {
+            VStack(spacing: 0) {
+              ZStack {
+                MapView()
                 VStack {
                   HStack {
-                    Button(action: { self.selectorState = .hidden }) {
-                      Image(systemName: "chevron.left.square.fill")
-                      Text("Close")
-                    }
                     Spacer()
-                  }.padding().padding(.top, geometry.safeAreaInsets.top)
-                  self.generateSelectorView()
+                    LegendView().padding(25)
+                  }
+                  Spacer()
                 }
-              }.frame(width: 250)
+              }
+              TableView().frame(height: 350).padding(.bottom, 20)
             }
-            Spacer()
+            HStack {
+              self.generateLeftSidePanelSelector(geometry).transition(.move(edge: .top))
+              Spacer()
+            }
           }
-        }
-      }.edgesIgnoringSafeArea(.all)
+        }.edgesIgnoringSafeArea(.all).accentColor(Color.purple)
+      }
     }
   }
 }

@@ -24,5 +24,6 @@ extension Resolver: ResolverRegistering {
     register { SQLCountryProvider(db: resolve()) as CountryProvider }.scope(application)
     register { FilterState() }.scope(application)
     register { ColorAndDataState() }.scope(application)
+    register { SelectionViewState() }.scope(application)
   }
 }

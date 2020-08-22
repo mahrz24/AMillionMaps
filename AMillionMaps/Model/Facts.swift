@@ -183,4 +183,6 @@ struct NumericMetadata: FactMetadata {
   let range: ClosedRange<Double>
 }
 
-struct CategoricalMetadata: FactMetadata {}
+struct CategoricalMetadata: FactMetadata {
+  let range: ClosedRange<Int>
+}

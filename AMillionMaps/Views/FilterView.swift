@@ -18,20 +18,22 @@ class FilterViewModel: ObservableObject {
     }
   }
 
-  @Published var factStates: [FactState] = Country.filterFacts.map { FactState(enabled: false, fact: $0) }
+  @Published var factStates: [DataState<AnyFact>] = Country.filterFacts.map { DataState<AnyFact>(enabled: false, data: $0) }
 }
 
 struct FilterView: View {
   @Injected var countryProvider: CountryProvider
 
-  @Binding var selectorViewState: SelectorViewState
+  @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
+
+  // TODO: also resolve
   @ObservedObject var viewModel: FilterViewModel
 
-  func generateRow(factState: FactState) -> AnyView {
+  func generateRow(factState: DataState<AnyFact>) -> AnyView {
     if factState.enabled {
       return AnyView(HStack {
-        FactFilterView(fact: factState.fact,
-                       action: { self.viewModel.filters[AnyFact(with: factState.fact)] = Condition(fact: factState.fact, value: $0) })
+        FactFilterView(fact: factState.data,
+                       action: { self.viewModel.filters[factState.data] = Condition(fact: factState.data, value: $0) })
       })
     } else {
       return AnyView(EmptyView())
@@ -49,11 +51,16 @@ struct FilterView: View {
           HStack {
             Spacer()
           }
-          ForEach(self.viewModel.factStates, id: \.self) {
+          ForEach(self.viewModel.factStates, id: \.id) {
             factState in self.generateRow(factState: factState)
           }
           HStack {
-            Button(action: { self.selectorViewState = .filterFactSelection }) {
+            SidePanelButton(panelBuilder: {
+              MultiListPicker(self.$viewModel.factStates) {
+                fact, selected in Checkbox(selected: selected, label: fact.id)
+              }
+            }
+            ) {
               Text("Edit")
             }
           }
