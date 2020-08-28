@@ -6,6 +6,7 @@
 //  Copyright © 2020 Malte Klemm. All rights reserved.
 //
 
+import DynamicColor
 import Foundation
 import SwiftUI
 import UIKit
@@ -16,34 +17,9 @@ extension Double {
   }
 }
 
-struct ColorComponents {
-  var r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat
-}
-
-extension UIColor {
-  func getComponents() -> ColorComponents {
-    if cgColor.numberOfComponents == 2 {
-      let cc = cgColor.components!
-      return ColorComponents(r: cc[0], g: cc[0], b: cc[0], a: cc[1])
-    } else {
-      let cc = cgColor.components!
-      return ColorComponents(r: cc[0], g: cc[1], b: cc[2], a: cc[3])
-    }
-  }
-
-  func interpolateRGBColorTo(end: UIColor, fraction: CGFloat) -> UIColor {
-    var f = max(0, fraction)
-    f = min(1, fraction)
-
-    let c1 = getComponents()
-    let c2 = end.getComponents()
-
-    let r = c1.r + (c2.r - c1.r) * f
-    let g = c1.g + (c2.g - c1.g) * f
-    let b = c1.b + (c2.b - c1.b) * f
-    let a = c1.a + (c2.a - c1.a) * f
-
-    return UIColor(red: r, green: g, blue: b, alpha: a)
+extension DynamicColor {
+  var color: Color {
+    Color(self)
   }
 }
 
@@ -51,27 +27,44 @@ struct ColorTheme: Identifiable {
   var id: String { label }
   var label: String
 
-  var uiBackground: Color
+  var uiBackground: DynamicColor
+  var uiBackgroundSecondary: DynamicColor
 
-  var background: UIColor
-  var filtered: UIColor
-  var lowValue: UIColor
-  var highValue: UIColor
+  var uiForeground: DynamicColor
+  var uiForegroundSecondary: DynamicColor
 
-  static func makeNamedTheme(name: String, label: String) -> ColorTheme {
-    ColorTheme(label: label, uiBackground: Color("\(name).uiBackground"), background: UIColor(named: "\(name).background")!,
-               filtered: UIColor(named: "\(name).filtered")!,
-               lowValue: UIColor(named: "\(name).lowValue")!, highValue: UIColor(named: "\(name).highValue")!)
-  }
+  var uiAccent: DynamicColor
+
+  var uiLightShadow: DynamicColor
+  var uiDarkShadow: DynamicColor
+
+  var mapBackground: DynamicColor
+  var mapFiltered: DynamicColor
+  var mapLowValue: DynamicColor
+  var mapHighValue: DynamicColor
+  var mapLabelText: DynamicColor
+  var mapBorder: DynamicColor
 
   static func makeDefaultTheme() -> ColorTheme {
-    makeNamedTheme(name: "default", label: "Default")
+    ColorTheme(label: "Default",
+               uiBackground: DynamicColor(hexString: "#fbfbfb"),
+               uiBackgroundSecondary: DynamicColor(hexString: "#f1f1f1"),
+               uiForeground: DynamicColor(hexString: "#999999"),
+               uiForegroundSecondary: DynamicColor(hexString: "#888888"),
+               uiAccent: DynamicColor(hexString: "#fbfbff"),
+               uiLightShadow: DynamicColor(hexString: "#FFFFFF"),
+               uiDarkShadow: DynamicColor(hexString: "#cfcfcf"),
+               mapBackground: DynamicColor(hexString: "#BA8D8D"),
+               mapFiltered: DynamicColor(hexString: "#F54A45"),
+               mapLowValue: DynamicColor(hexString: "#F54A45"),
+               mapHighValue: DynamicColor(hexString: "#CBA2A2"),
+               mapLabelText: DynamicColor(hexString: "#F54A45"),
+               mapBorder: DynamicColor(hexString: "#F54A45"))
   }
 
   static func allThemes() -> [ColorTheme] {
     [
       makeDefaultTheme(),
-      makeNamedTheme(name: "classic", label: "Classic"),
     ]
   }
 
@@ -82,11 +75,11 @@ struct ColorTheme: Identifiable {
 
   func colorForImageValue(image: ImageValue?) -> UIColor {
     guard let image = image else {
-      return filtered
+      return mapFiltered
     }
     switch image {
     case let .Numeric(image):
-      return lowValue.interpolateRGBColorTo(end: highValue, fraction: CGFloat(image.clip(0, 1)))
+      return mapLowValue.mixed(withColor: mapHighValue, weight: CGFloat(image.clip(0, 1)))
     case let .Categorical(image):
       return [UIColor.red, UIColor.green, UIColor.blue, UIColor.yellow, UIColor.purple, UIColor.magenta][image % 4]
     }

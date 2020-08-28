@@ -25,5 +25,6 @@ extension Resolver: ResolverRegistering {
     register { FilterState() }.scope(application)
     register { ColorAndDataState() }.scope(application)
     register { SelectionViewState() }.scope(application)
+    register { FilterSelectionState() }.scope(application)
   }
 }

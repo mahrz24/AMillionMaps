@@ -52,6 +52,8 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
 
   @Binding private var rows: [RowData]
   @Binding private var cols: [ColData]
+  
+  @Environment(\.colorTheme) var colorTheme: ColorTheme
 
   let cellBuilder: (RowData, ColData) -> Content
   let rowHeaderBuilder: (RowData) -> RowHeader
@@ -199,7 +201,7 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
         Spacer().frame(width: self.headerColWidth, height: self.rowHeight)
 
         ZStack {
-          Rectangle().fill(Color.white).frame(width: contentWidth - self.headerColWidth, height: self.rowHeight)
+          Rectangle().fill(self.colorTheme.uiBackground.color).frame(width: contentWidth - self.headerColWidth, height: self.rowHeight)
           HStack(spacing: 0) {
             Spacer().frame(width: self.rangeColWidth(0 ..< colRange.startIndex), height: self.rowHeight)
 
@@ -218,7 +220,7 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
 
       HStack(spacing: 0) {
         ZStack {
-          Rectangle().fill(Color.white).frame(width: self.headerColWidth, height: contentHeight - self.rowHeight)
+          Rectangle().fill(self.colorTheme.uiBackground.color).frame(width: self.headerColWidth, height: contentHeight - self.rowHeight)
 
           VStack(spacing: 0) {
             Spacer().frame(width: self.headerColWidth, height: CGFloat(rowRange.startIndex) * self.rowHeight)
@@ -237,7 +239,7 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
 
         HStack(spacing: 0) {
           ZStack {
-            Rectangle().fill(Color.white).frame(width: contentWidth - headerColWidth, height: contentHeight - self.rowHeight)
+            Rectangle().fill(self.colorTheme.uiBackground.color).frame(width: contentWidth - headerColWidth, height: contentHeight - self.rowHeight)
             HStack(spacing: 0) {
               Spacer().frame(width: self.rangeColWidth(0 ..< colRange.startIndex), height: self.rowHeight)
 

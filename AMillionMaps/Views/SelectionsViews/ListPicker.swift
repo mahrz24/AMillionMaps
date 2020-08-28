@@ -26,6 +26,7 @@ struct Checkbox: View {
 struct ListPicker<Content: View, Data: Identifiable>: View {
   @Binding var selections: [Data]
   @Binding var selected: Data
+  @State var counter = 0
 
   let viewBuilder: (Data, Bool) -> Content
 
@@ -40,8 +41,14 @@ struct ListPicker<Content: View, Data: Identifiable>: View {
       VStack {
         ForEach(self.selections.indices) {
           index in
-          Button(action: { self.selected = self.selections[index] }) {
-            self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
+          HStack(spacing: 0) {
+            // This is an ugly hack to update the list on click
+            Text("\(self.counter)").frame(width: 0)
+            Button(action: { self.selected = self.selections[index]
+              self.counter += 1
+            }) {
+              self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
+            }
           }
         }
       }
@@ -55,14 +62,14 @@ struct DataState<T: Identifiable>: Identifiable {
   var data: T
 }
 
-
 struct MultiListPicker<Content: View, Data: Identifiable>: View {
   @Binding var selections: [DataState<Data>]
+  @State var counter = 0
 
   let viewBuilder: (Data, Bool) -> Content
-  let action: (() -> ())?
+  let action: (() -> Void)?
 
-  init(_ selections: Binding<[DataState<Data>]>, action: (() -> ())? = nil, @ViewBuilder viewBuilder: @escaping (Data, Bool) -> Content) {
+  init(_ selections: Binding<[DataState<Data>]>, action: (() -> Void)? = nil, @ViewBuilder viewBuilder: @escaping (Data, Bool) -> Content) {
     _selections = selections
     self.action = action
     self.viewBuilder = viewBuilder
@@ -73,11 +80,16 @@ struct MultiListPicker<Content: View, Data: Identifiable>: View {
       VStack {
         ForEach(self.selections.indices) {
           index in
-          Button(action: {
-            self.selections[index].enabled.toggle()
-            self.action?()
+          HStack(spacing: 0) {
+            // This is an ugly hack to update the list on click
+            Text("\(self.counter)").frame(width: 0)
+            Button(action: {
+              self.selections[index].enabled.toggle()
+              self.counter += 1
+              self.action?()
           }) {
-            self.viewBuilder(self.selections[index].data, self.selections[index].enabled)
+              self.viewBuilder(self.selections[index].data, self.selections[index].enabled)
+            }
           }
         }
       }
@@ -88,6 +100,7 @@ struct MultiListPicker<Content: View, Data: Identifiable>: View {
 struct OptionalListPicker<Content: View, Data: Hashable>: View {
   @Binding var selections: [Data]
   @Binding var selected: Data?
+  @State var counter = 0
 
   let viewBuilder: (Data, Bool) -> Content
 
@@ -100,7 +113,9 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
   var body: some View {
     ScrollView {
       VStack {
-        Button(action: { self.selected = nil }) {
+        Button(action: { self.selected = nil
+          self.counter += 1
+        }) {
           HStack {
             Text("None")
             Spacer()
@@ -109,8 +124,14 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
 
         ForEach(self.selections.indices) {
           index in
-          Button(action: { self.selected = self.selections[index] }) {
-            self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
+          HStack(spacing: 0) {
+            // This is an ugly hack to update the list on click
+            Text("\(self.counter)").frame(width: 0)
+            Button(action: { self.selected = self.selections[index]
+              self.counter += 1
+            }) {
+              self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
+            }
           }
         }
       }

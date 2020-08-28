@@ -12,24 +12,33 @@ import Sliders
 import SwiftUI
 
 struct TickView: View {
+  @Environment(\.colorTheme) var colorTheme: ColorTheme
+
   var ticks: [Double]
 
   init(ticks: [Double]) {
     self.ticks = ticks
   }
 
+  func generateTickCapsule(_ geometry: GeometryProxy, index: Int, value: Double) -> some View {
+    let baseCapsule = Capsule().rotation(Angle(degrees: 90)).neuInnerShadows(0.5, colorTheme: colorTheme)
+    let x = CGFloat(index) / CGFloat(ticks.count) * (geometry.size.width - 5)
+    let y = geometry.size.height / 2 - 2
+
+    return baseCapsule.frame(width: CGFloat(value) * 9 + 2, height: 4).offset(x: x + 5, y: y)
+  }
+
   var body: some View {
     ZStack {
-      Rectangle().foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
-      GeometryReader { geometry in
-        Path { path in
-          for tick in self.ticks {
-            path.move(to: CGPoint(x: CGFloat(tick) * geometry.size.width, y: 1))
-            path.addLine(to: CGPoint(x: CGFloat(tick) * geometry.size.width, y: geometry.size.height - 1))
-          }
-        }
-        .stroke(Color.gray, lineWidth: 1)
-      }
+      Rectangle().neuInnerShadows(0.5, colorTheme: colorTheme).foregroundColor(.clear)
+        .background(LinearGradient(gradient: Gradient(colors: [colorTheme.uiForegroundSecondary.color,
+                                                               colorTheme.uiForegroundSecondary.darkened(amount: 0.05).color]),
+                                   startPoint: .leading, endPoint: .trailing))
+//      GeometryReader { geometry in
+//        ForEach(self.ticks.indices, id: \.hashValue) {
+//          index in self.generateTickCapsule(geometry, index: index, value: self.ticks[index])
+//        }
+//      }
     }
   }
 }
@@ -43,17 +52,13 @@ struct NumericFactFilterView: View {
   @State private var factBounds: ClosedRange<Double> = 0 ... 1
   @State private var rank: [Double] = []
 
+  @Environment(\.colorTheme) var colorTheme: ColorTheme
+
   var filterTicks: [Double] {
     let factBounds = toFactRange(filterBounds)
 
-    var offset: Double = 1
-
-    if fact.distributeByRank {
-      offset += 1
-    }
-
     let range = factBounds.upperBound - factBounds.lowerBound
-    let exponent = floor(log(range) / log(10)) - offset
+    let exponent = floor(log(range) / log(10)) - 1
 
     let step = pow(10, exponent)
     let lowerTick = ceil(factBounds.lowerBound / step) * step
@@ -111,44 +116,51 @@ struct NumericFactFilterView: View {
   }
 
   var body: some View {
-    VStack {
+    ZStack(alignment: .center) {
+      Rectangle().neuCard()
       HStack {
-        Text(fact.id).font(.subheadline)
-        Spacer()
+        VStack {
+          HStack {
+            Text(fact.id).font(.subheadline)
+            Spacer()
+          }
+          VStack {
+            RangeSlider(range: $filterRange, in: filterBounds, onEditingChanged: { _ in
+              self.action(ConditionValue.numeric(self.toFactRange(self.filterRange),
+                                                 self.filterRange
+                                                   .lowerBound == self
+                                                   .filterBounds
+                                                   .lowerBound,
+                                                 self.filterRange
+                                                   .upperBound == self
+                                                   .filterBounds
+                                                   .upperBound))
+            })
+              .frame(height: 15)
+              .rangeSliderStyle(
+                HorizontalRangeSliderStyle(track:
+                  HorizontalRangeTrack(view: TickView(ticks: self.filterTicks),
+                                       mask: Capsule())
+                    .frame(height: 18)
+                    .background(TickView(ticks: self.filterTicks).opacity(0.5).mask(Capsule())),
+                                           
+                  lowerThumb: Circle().neuInnerShadows(2, colorTheme: colorTheme).foregroundColor(colorTheme.uiBackground.color)
+                    .neuShadows(1),
+                                           upperThumb: Circle().neuInnerShadows(2, colorTheme: colorTheme).foregroundColor(colorTheme.uiBackground.color)
+                    .neuShadows(1),
+                                           lowerThumbSize: CGSize(width: 18, height: 18),
+                                           upperThumbSize: CGSize(width: 18, height: 18))
+              )
+            HStack {
+              Text(formatNumber(toFactValue(filterRange.lowerBound), truncate: self.fact.round ?? 1)).font(.footnote)
+              Spacer()
+              Text(formatNumber(toFactValue(filterRange.upperBound), truncate: self.fact.round ?? 1)).font(.footnote)
+            }
+          }
+        }.padding()
       }
-      VStack {
-        RangeSlider(range: $filterRange, in: filterBounds, onEditingChanged: { _ in
-          self.action(ConditionValue.numeric(self.toFactRange(self.filterRange),
-                                             self.filterRange
-                                               .lowerBound == self
-                                               .filterBounds
-                                               .lowerBound,
-                                             self.filterRange
-                                               .upperBound == self
-                                               .filterBounds
-                                               .upperBound))
-        })
-          .frame(height: 15)
-          .rangeSliderStyle(
-            HorizontalRangeSliderStyle(track:
-              HorizontalRangeTrack(view: TickView(ticks: self.filterTicks),
-                                   mask: Rectangle())
-                .frame(height: 14)
-                .background(TickView(ticks: self.filterTicks).opacity(0.5))
-                .cornerRadius(5),
-                                       lowerThumb: Capsule().foregroundColor(.white).shadow(radius: 3),
-                                       upperThumb: Capsule().foregroundColor(.white).shadow(radius: 3),
-                                       lowerThumbSize: CGSize(width: 8, height: 18),
-                                       upperThumbSize: CGSize(width: 8, height: 18))
-          )
-        HStack {
-          Text(formatNumber(toFactValue(filterRange.lowerBound), truncate: self.fact.round ?? 1)).font(.footnote)
-          Spacer()
-          Text(formatNumber(toFactValue(filterRange.upperBound), truncate: self.fact.round ?? 1)).font(.footnote)
-        }
-      }
-
-    }.onAppear {
+    }
+    .onAppear {
       let numericFactMetadata: NumericMetadata = self.countryProvider.factMetadata(AnyFact(with: self.fact)).unwrap()!
       self.rank = self.countryProvider.factRank(self.fact).map { $0.1 }
       self.factBounds = numericFactMetadata.range
@@ -174,7 +186,7 @@ struct NumericFactFilterView_Previews: PreviewProvider {
                                                       keyPath: \Country.population,
                                                       columnAttribues: ColumnAttributes(width: 200)), action: { _ in print("HI") })
 
-    }.previewLayout(PreviewLayout.fixed(width: 250, height: 150))
+    }.useColorTheme().previewLayout(PreviewLayout.fixed(width: 250, height: 250))
       .padding()
       .previewDisplayName("Default preview")
   }

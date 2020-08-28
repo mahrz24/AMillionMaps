@@ -13,6 +13,7 @@ target 'AMillionMaps' do
   pod 'Resolver'
   pod 'Mapbox-iOS-SDK', '~> 5.9'
   pod 'SQLite.swift', '~> 0.12.0'
+  pod 'DynamicColor', '~> 5.0.1'
   
 
   target 'AMillionMapsTests' do

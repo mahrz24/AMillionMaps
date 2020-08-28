@@ -74,11 +74,11 @@ struct MultiSelectToggleStyle: ToggleStyle {
   }
 }
 
-//struct DataState<T: Identifiable & CustomStringConvertible>: Identifiable {
+// struct DataState<T: Identifiable & CustomStringConvertible>: Identifiable {
 //  var id: T.ID { data.id }
 //  var enabled: Bool
 //  var data: T
-//}
+// }
 
 struct MultiSelect<Content: View, Data: Identifiable & CustomStringConvertible>: View {
   @Binding var selections: [DataState<Data>]

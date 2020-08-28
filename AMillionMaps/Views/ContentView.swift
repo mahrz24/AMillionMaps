@@ -9,17 +9,23 @@
 import Resolver
 import SwiftUI
 
+struct ThemedContentView: View {
+  @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
+
+  var body: some View {
+    ContentView().environment(\.colorTheme, colorViewModel.colorTheme)
+  }
+}
+
 struct ContentView: View {
   // Global states needed for the fact selectors / other pickers
 
-  // TODO: check if this should also be resolved and why not merged with filter state?
-  @ObservedObject var filterViewModel = FilterViewModel()
-
-  @ObservedObject var colorViewModel: ColorAndDataState = Resolver.resolve()
   @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
 
+  @Environment(\.colorTheme) var colorTheme: ColorTheme
+
   func generateLeftSidePanelSelector(_ geometry: GeometryProxy) -> AnyView {
-    // TODO make two properties and a simple if / else out it
+    // TODO: make two properties and a simple if / else out it
     switch selectionViewModel.leftSidePanelState {
     case let .visible(viewBuilder):
       return AnyView(SettingsOverlayView {
@@ -41,15 +47,15 @@ struct ContentView: View {
 
   var body: some View {
     ZStack {
-      Rectangle().foregroundColor(colorViewModel.colorTheme.uiBackground).edgesIgnoringSafeArea(.all)
+      Rectangle().foregroundColor(Color(colorTheme.uiBackground)).edgesIgnoringSafeArea(.all)
       GeometryReader { geometry in
         HStack {
           ZStack {
             VStack {
-              FilterView(viewModel: self.filterViewModel).padding(.top, geometry.safeAreaInsets.top)
-              ColorView(viewModel: self.colorViewModel).frame(minHeight: 300)
+              FilterView().padding(.top, geometry.safeAreaInsets.top)
+              ColorView().frame(minHeight: 300)
             }
-          }.frame(maxWidth: 300).padding(10)
+          }.frame(maxWidth: 300)
           ZStack {
             VStack(spacing: 0) {
               ZStack {
@@ -69,7 +75,7 @@ struct ContentView: View {
               Spacer()
             }
           }
-        }.edgesIgnoringSafeArea(.all).accentColor(Color.purple)
+        }.edgesIgnoringSafeArea(.all).useColorTheme()
       }
     }
   }

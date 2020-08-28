@@ -52,28 +52,28 @@ class SQLCountryProvider: CountryProvider {
       condition += " \(db_column) <= \(value.upperBound)"
 
       return "(\(condition))"
-    
+
     case .Constant(.categorical):
       let db_column = "country_\(fact.id.lowercased())"
       guard case let ConditionValue.categorical(values) = condition.value else {
         fatalError("Condition fact type \(fact.type) and condition value \(condition.value) are not matching.")
       }
-      
+
       var options: [String] = []
-      
+
       let categoricalFact: ConstantCategoricalFact = fact.unwrap()!
       if let categoryLabels = categoricalFact.categoryLabels {
-        options = values.map({"\(categoryLabels.firstIndex(of: $0) ?? 0)"})
+        options = values.map { "\(categoryLabels.firstIndex(of: $0) ?? 0)" }
       } else {
-        options = values.map({"\"\($0)\""})
+        options = values.map { "\"\($0)\"" }
       }
-    
+
       let condition: String = "\(db_column) IN (\(options.joined(separator: ", ")))"
-      
+
       print(condition)
-      
+
       return "(\(condition))"
-    
+
     default:
       fatalError("Condition of fact type \(fact.type) cannot be converted")
     }

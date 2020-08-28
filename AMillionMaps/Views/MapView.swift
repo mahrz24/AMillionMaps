@@ -59,11 +59,11 @@ struct MapView: UIViewRepresentable {
                                        NSExpression(forMGLMatchingKey:
                                          NSExpression(forKeyPath: "ADM0_A3"),
                                                     in: conditions,
-                                                    default: NSExpression(forConstantValue: colorAndDataState.colorTheme.lowValue)),
-                                       colorAndDataState.colorTheme.filtered)
+                                                    default: NSExpression(forConstantValue: colorAndDataState.colorTheme.mapLowValue)),
+                                       colorAndDataState.colorTheme.mapFiltered)
       } else {
         layer.fillColor = NSExpression(format: "TERNARY(ADM0_A3 IN %@, %@, %@)", filterState.countries.map { $0.id },
-                                       colorAndDataState.colorTheme.lowValue, colorAndDataState.colorTheme.filtered)
+                                       colorAndDataState.colorTheme.mapLowValue, colorAndDataState.colorTheme.mapFiltered)
       }
 
       let labelConditions = colorAndDataState.countryLabels
@@ -107,7 +107,7 @@ struct MapView: UIViewRepresentable {
         return
       }
 
-      bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.background)
+      bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.mapBackground)
     }
 
     func mapView(_: MGLMapView, didFinishLoading style: MGLStyle) {
@@ -141,7 +141,7 @@ struct MapView: UIViewRepresentable {
       let countries: MGLShapeSource = MGLShapeSource(identifier: "countries", shape: countriesFeatures)
 
       let bgLayer = MGLBackgroundStyleLayer(identifier: "background")
-      bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.background)
+      bgLayer.backgroundColor = NSExpression(forConstantValue: colorAndDataState.colorTheme.mapBackground)
 
       style.addLayer(bgLayer)
       self.bgLayer = bgLayer

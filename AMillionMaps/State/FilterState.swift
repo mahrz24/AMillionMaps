@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import Resolver
 import SQLite
+import SwiftUI
 
 class FilterState: ObservableObject {
   @Injected var countryProvider: CountryProvider
@@ -31,5 +32,21 @@ class FilterState: ObservableObject {
   func updateFilteredCountries() {
     countries = countryProvider.countries(filter)
     countriesDidChange.send()
+  }
+}
+
+class FilterSelectionState: ObservableObject {
+  @ObservedObject var filterState: FilterState = Resolver.resolve()
+
+  @Published var filters: [AnyFact: Condition] = [:] {
+    didSet {
+      filterState.filter = Filter(conjunctions: [Conjunction(conditions: Array(filters.values))])
+    }
+  }
+
+  @Published var factStates: [DataState<AnyFact>] = Country.filterFacts.map {
+    data in
+    print("Reset")
+    return DataState<AnyFact>(enabled: false, data: data)
   }
 }

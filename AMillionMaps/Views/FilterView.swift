@@ -9,31 +9,17 @@
 import Resolver
 import SwiftUI
 
-class FilterViewModel: ObservableObject {
-  @ObservedObject var filterState: FilterState = Resolver.resolve()
-
-  @Published var filters: [AnyFact: Condition] = [:] {
-    didSet {
-      filterState.filter = Filter(conjunctions: [Conjunction(conditions: Array(filters.values))])
-    }
-  }
-
-  @Published var factStates: [DataState<AnyFact>] = Country.filterFacts.map { DataState<AnyFact>(enabled: false, data: $0) }
-}
-
 struct FilterView: View {
   @Injected var countryProvider: CountryProvider
 
   @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
-
-  // TODO: also resolve
-  @ObservedObject var viewModel: FilterViewModel
+  @ObservedObject var viewModel: FilterSelectionState = Resolver.resolve()
 
   func generateRow(factState: DataState<AnyFact>) -> AnyView {
     if factState.enabled {
       return AnyView(HStack {
         FactFilterView(fact: factState.data,
-                       action: { self.viewModel.filters[factState.data] = Condition(fact: factState.data, value: $0) })
+                       action: { self.viewModel.filters[factState.data] = Condition(fact: factState.data, value: $0) }).padding(17)
       })
     } else {
       return AnyView(EmptyView())
@@ -60,6 +46,7 @@ struct FilterView: View {
                 fact, selected in Checkbox(selected: selected, label: fact.id)
               }
             }
+
             ) {
               Text("Edit")
             }

@@ -11,7 +11,7 @@ import SwiftUI
 
 struct ColorView: View {
   @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
-  @ObservedObject var viewModel: ColorAndDataState
+  @ObservedObject var viewModel: ColorAndDataState = Resolver.resolve()
 
   func selectedFactView() -> Text {
     if let selectedFact = viewModel.fact {
