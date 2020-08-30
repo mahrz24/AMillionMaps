@@ -14,9 +14,16 @@ struct Checkbox: View {
 
   var body: some View {
     HStack {
-      Image(systemName: selected ? "checkmark.square" : "square")
+      if selected {
+        Image(systemName:  "checkmark.square.fill")
         .resizable()
-        .frame(width: 14, height: 14)
+        .frame(width: 14, height: 14).paddedIcon().neumorphicPressed().foregroundColor(Color.accentColor)
+        
+      } else {
+        Image(systemName: "square")
+        .resizable()
+        .frame(width: 14, height: 14).paddedIcon().neumorphic()
+      }
       Text(label)
       Spacer()
     }
@@ -41,17 +48,17 @@ struct ListPicker<Content: View, Data: Identifiable>: View {
       VStack {
         ForEach(self.selections.indices) {
           index in
-          HStack(spacing: 0) {
+          HStack() {
             // This is an ugly hack to update the list on click
             Text("\(self.counter)").frame(width: 0)
             Button(action: { self.selected = self.selections[index]
-              self.counter += 1
+              self.counter = (self.counter + 1) % 2
             }) {
               self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
             }
           }
         }
-      }
+      }.padding([.top], 5)
     }
   }
 }
@@ -80,19 +87,19 @@ struct MultiListPicker<Content: View, Data: Identifiable>: View {
       VStack {
         ForEach(self.selections.indices) {
           index in
-          HStack(spacing: 0) {
+          HStack {
             // This is an ugly hack to update the list on click
             Text("\(self.counter)").frame(width: 0)
             Button(action: {
               self.selections[index].enabled.toggle()
-              self.counter += 1
+              self.counter = (self.counter + 1) % 2
               self.action?()
           }) {
               self.viewBuilder(self.selections[index].data, self.selections[index].enabled)
             }
           }
         }
-      }
+      }.padding([.top], 5)
     }
   }
 }
@@ -114,7 +121,7 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
     ScrollView {
       VStack {
         Button(action: { self.selected = nil
-          self.counter += 1
+          self.counter = (self.counter + 1) % 2
         }) {
           HStack {
             Text("None")
@@ -124,17 +131,17 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
 
         ForEach(self.selections.indices) {
           index in
-          HStack(spacing: 0) {
+          HStack() {
             // This is an ugly hack to update the list on click
             Text("\(self.counter)").frame(width: 0)
             Button(action: { self.selected = self.selections[index]
-              self.counter += 1
+              self.counter = (self.counter + 1) % 2
             }) {
               self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
             }
           }
         }
-      }
+      }.padding([.top], 5)
     }
   }
 }

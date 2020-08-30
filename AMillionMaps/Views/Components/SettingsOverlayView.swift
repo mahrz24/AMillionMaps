@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct SettingsOverlayView<Content: View>: View {
+  @Environment(\.colorTheme) var colorTheme: ColorTheme
+
   let viewBuilder: () -> Content
 
   init(_ viewBuilder: @escaping () -> Content) {
@@ -17,8 +19,7 @@ struct SettingsOverlayView<Content: View>: View {
 
   var body: some View {
     ZStack {
-      BlurView(style: .light)
-      Rectangle().foregroundColor(Color.gray).opacity(0.25)
+      Rectangle().foregroundColor(colorTheme.uiBackground.tinted(amount: 0.05).color).softHorizontalInnerShadow(Rectangle(), spread: 0.1, radius: 5)
       self.viewBuilder()
     }
   }

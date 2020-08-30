@@ -22,10 +22,11 @@ struct Chips: View {
     }
     .padding([.leading, .trailing], 10)
     .padding([.top, .bottom], 5)
-      .cornerRadius(40) // rounded Corner
-      .background(
-        RoundedRectangle(cornerRadius: 40).neuInnerShadows(1, colorTheme: colorTheme).foregroundColor(colorTheme.uiBackground.color)
-      )
+    .cornerRadius(40) // rounded Corner
+    .background(
+      RoundedRectangle(cornerRadius: 40).softInnerShadow(RoundedRectangle(cornerRadius: 40), spread: 0.075, radius: 4)
+        .foregroundColor(colorTheme.uiBackground.color)
+    )
   }
 }
 
@@ -71,11 +72,11 @@ struct CategoricalFactFilterView: View {
         }
       }
 
-      VStack{
-          ForEach(self.selectedCategories.filter { $0.enabled }, id: \.id) {
-            category in
-            Chips(titleKey: LocalizedStringKey(category.data)).padding(5)
-          }
+      VStack {
+        ForEach(self.selectedCategories.filter { $0.enabled }, id: \.id) {
+          category in
+          Chips(titleKey: LocalizedStringKey(category.data)).padding(5)
+        }
       }
     }.padding().background(Rectangle().neuCard()).onAppear {
       self.selectedCategories = self.fact.categoryLabels!.map { DataState<String>(enabled: true, data: $0) }

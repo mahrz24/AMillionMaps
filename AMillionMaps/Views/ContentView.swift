@@ -63,7 +63,7 @@ struct ContentView: View {
                 VStack {
                   HStack {
                     Spacer()
-                    LegendView().padding(25)
+                    LegendView().padding(35)
                   }
                   Spacer()
                 }

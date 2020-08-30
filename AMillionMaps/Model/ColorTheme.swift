@@ -28,11 +28,7 @@ struct ColorTheme: Identifiable {
   var label: String
 
   var uiBackground: DynamicColor
-  var uiBackgroundSecondary: DynamicColor
-
   var uiForeground: DynamicColor
-  var uiForegroundSecondary: DynamicColor
-
   var uiAccent: DynamicColor
 
   var uiLightShadow: DynamicColor
@@ -47,17 +43,15 @@ struct ColorTheme: Identifiable {
 
   static func makeDefaultTheme() -> ColorTheme {
     ColorTheme(label: "Default",
-               uiBackground: DynamicColor(hexString: "#fbfbfb"),
-               uiBackgroundSecondary: DynamicColor(hexString: "#f1f1f1"),
+               uiBackground: DynamicColor(hexString: "#ecf0f3"),
                uiForeground: DynamicColor(hexString: "#999999"),
-               uiForegroundSecondary: DynamicColor(hexString: "#888888"),
-               uiAccent: DynamicColor(hexString: "#fbfbff"),
+               uiAccent: DynamicColor(hexString: "#9999ff"),
                uiLightShadow: DynamicColor(hexString: "#FFFFFF"),
-               uiDarkShadow: DynamicColor(hexString: "#cfcfcf"),
-               mapBackground: DynamicColor(hexString: "#BA8D8D"),
-               mapFiltered: DynamicColor(hexString: "#F54A45"),
-               mapLowValue: DynamicColor(hexString: "#F54A45"),
-               mapHighValue: DynamicColor(hexString: "#CBA2A2"),
+               uiDarkShadow: DynamicColor(hexString: "#d1d9e6"),
+               mapBackground: DynamicColor(hexString: "#ecf0f3").shaded(amount: 0.1),
+               mapFiltered: DynamicColor(hexString: "#ecf0f3").shaded(amount: 0.2),
+               mapLowValue: DynamicColor(hexString: "#9999ff").shaded(amount: 0.5),
+               mapHighValue: DynamicColor(hexString: "#9999ff").tinted(amount: 0.5),
                mapLabelText: DynamicColor(hexString: "#F54A45"),
                mapBorder: DynamicColor(hexString: "#F54A45"))
   }

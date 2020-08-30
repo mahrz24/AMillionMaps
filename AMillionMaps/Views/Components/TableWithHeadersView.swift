@@ -52,7 +52,7 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
 
   @Binding private var rows: [RowData]
   @Binding private var cols: [ColData]
-  
+
   @Environment(\.colorTheme) var colorTheme: ColorTheme
 
   let cellBuilder: (RowData, ColData) -> Content
@@ -239,7 +239,8 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
 
         HStack(spacing: 0) {
           ZStack {
-            Rectangle().fill(self.colorTheme.uiBackground.color).frame(width: contentWidth - headerColWidth, height: contentHeight - self.rowHeight)
+            Rectangle().fill(self.colorTheme.uiBackground.color)
+              .frame(width: contentWidth - headerColWidth, height: contentHeight - self.rowHeight)
             HStack(spacing: 0) {
               Spacer().frame(width: self.rangeColWidth(0 ..< colRange.startIndex), height: self.rowHeight)
 
@@ -269,11 +270,20 @@ struct TableWithHeadersView<Content: View, RowHeader: View, ColHeader: View, Row
             }
           }
         }.offset(x: self.xTotalOffset).clipped()
-      }.offset(y: self.yTotalOffset).clipped()
+      }.offset(y: self.yTotalOffset).clipped().contentShape(Rectangle().offset(x: 0, y: 0).size(width: geometry.size.width,
+                                                                                                height: geometry.size.height))
+//        .overlay(Rectangle().offset(x: 0, y: 0)
+//          .size(width: geometry.size.width,
+//                height: geometry
+//                  .size
+//                  .height)
+//          .foregroundColor(Color
+//            .red)
+//          .opacity(0.5))
+        .gesture(drag)
     }
     .offset(x: baseOffsetX, y: baseOffsetY)
     .clipped()
-    .gesture(drag)
   }
 }
 

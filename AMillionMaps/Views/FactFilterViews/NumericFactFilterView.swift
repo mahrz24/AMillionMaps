@@ -7,6 +7,7 @@
 //
 
 import Combine
+import DynamicColor
 import Resolver
 import Sliders
 import SwiftUI
@@ -15,24 +16,26 @@ struct TickView: View {
   @Environment(\.colorTheme) var colorTheme: ColorTheme
 
   var ticks: [Double]
+  var color: DynamicColor
 
-  init(ticks: [Double]) {
+  init(ticks: [Double], color: DynamicColor) {
     self.ticks = ticks
+    self.color = color
   }
 
-  func generateTickCapsule(_ geometry: GeometryProxy, index: Int, value: Double) -> some View {
-    let baseCapsule = Capsule().rotation(Angle(degrees: 90)).neuInnerShadows(0.5, colorTheme: colorTheme)
-    let x = CGFloat(index) / CGFloat(ticks.count) * (geometry.size.width - 5)
-    let y = geometry.size.height / 2 - 2
-
-    return baseCapsule.frame(width: CGFloat(value) * 9 + 2, height: 4).offset(x: x + 5, y: y)
-  }
+//  func generateTickCapsule(_ geometry: GeometryProxy, index: Int, value: Double) -> some View {
+//    let baseCapsule = Capsule().rotation(Angle(degrees: 90)).softInnerShadow()
+//    let x = CGFloat(index) / CGFloat(ticks.count) * (geometry.size.width - 5)
+//    let y = geometry.size.height / 2 - 2
+//
+//    return baseCapsule.frame(width: CGFloat(value) * 9 + 2, height: 4).offset(x: x + 5, y: y)
+//  }
 
   var body: some View {
     ZStack {
-      Rectangle().neuInnerShadows(0.5, colorTheme: colorTheme).foregroundColor(.clear)
-        .background(LinearGradient(gradient: Gradient(colors: [colorTheme.uiForegroundSecondary.color,
-                                                               colorTheme.uiForegroundSecondary.darkened(amount: 0.05).color]),
+      Rectangle().foregroundColor(.clear)
+        .background(LinearGradient(gradient: Gradient(colors: [color.color,
+                                                               color.shaded(amount: 0.025).color]),
                                    startPoint: .leading, endPoint: .trailing))
 //      GeometryReader { geometry in
 //        ForEach(self.ticks.indices, id: \.hashValue) {
@@ -139,15 +142,16 @@ struct NumericFactFilterView: View {
               .frame(height: 15)
               .rangeSliderStyle(
                 HorizontalRangeSliderStyle(track:
-                  HorizontalRangeTrack(view: TickView(ticks: self.filterTicks),
-                                       mask: Capsule())
+                  HorizontalRangeTrack(view: TickView(ticks: self.filterTicks, color: colorTheme.uiAccent),
+                                       mask: Rectangle())
                     .frame(height: 18)
-                    .background(TickView(ticks: self.filterTicks).opacity(0.5).mask(Capsule())),
+                    .background(TickView(ticks: self.filterTicks, color: colorTheme.uiBackground).mask(Capsule())
+                      .softInnerShadow(Capsule(), spread: 0.05, radius: 2)),
                                            
-                  lowerThumb: Circle().neuInnerShadows(2, colorTheme: colorTheme).foregroundColor(colorTheme.uiBackground.color)
-                    .neuShadows(1),
-                                           upperThumb: Circle().neuInnerShadows(2, colorTheme: colorTheme).foregroundColor(colorTheme.uiBackground.color)
-                    .neuShadows(1),
+                  lowerThumb: Circle().softInnerShadow(Circle()).foregroundColor(colorTheme.uiBackground.color)
+                    .softOuterShadow(offset: 2, radius: 1),
+                                           upperThumb: Circle().softInnerShadow(Circle()).foregroundColor(colorTheme.uiBackground.color)
+                    .softOuterShadow(offset: 2, radius: 1),
                                            lowerThumbSize: CGSize(width: 18, height: 18),
                                            upperThumbSize: CGSize(width: 18, height: 18))
               )

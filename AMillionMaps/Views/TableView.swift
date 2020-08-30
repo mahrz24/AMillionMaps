@@ -69,34 +69,36 @@ struct TableView: View {
                            row in Text("\(row.id)")
                          }, {
                            col in HStack {
-                             Spacer()
-                             Text("\(col.id)")
-                             Spacer()
-                             Button(action: {
-                               if col == self.orderById {
-                                 if self.orderDescending {
-                                   self.orderDescending = false
-                                 } else {
-                                   self.orderById = nil
-                                 }
+                            Spacer()
+                            Text("\(col.id)")
+                            Spacer()
+                             if col == self.orderById {
+                               if self.orderDescending {
+                                Image(systemName: "arrow.down.square.fill").resizable()
+                                .frame(width: 14, height: 14).paddedIcon().neumorphicPressed().foregroundColor(Color.accentColor)
                                } else {
-                                 self.orderById = col
-                                 self.orderDescending = true
+                                 Image(systemName: "arrow.up.square.fill").resizable()
+                                 .frame(width: 14, height: 14).paddedIcon().neumorphicPressed().foregroundColor(Color.accentColor)
                                }
-                               self.update()
-                            }) {
-                               if col == self.orderById {
-                                 if self.orderDescending {
-                                   Image(systemName: "arrow.down.square.fill")
-                                 } else {
-                                   Image(systemName: "arrow.up.square.fill")
-                                 }
-                               } else {
-                                 Image(systemName: "arrow.up.arrow.down.square")
-                               }
+                             } else {
+                                Image(systemName: "arrow.up.arrow.down.square").resizable()
+                                .frame(width: 14, height: 14).paddedIcon().neumorphic()
                              }
-                           }
-    }) {
+                           }.contentShape(Rectangle()).onTapGesture {
+                            if col == self.orderById {
+                              if self.orderDescending {
+                                self.orderDescending = false
+                              } else {
+                                self.orderById = nil
+                              }
+                            } else {
+                              self.orderById = col
+                              self.orderDescending = true
+                            }
+                            self.update()
+                          }
+                      }
+    ) {
       (country, fact) -> AnyView in
       if let value = country[keyPath: fact.keyPath] {
         if let formattedValue = fact.format(value) {

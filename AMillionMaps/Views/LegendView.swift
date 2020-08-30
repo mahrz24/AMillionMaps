@@ -44,7 +44,10 @@ struct LegendView: View {
   func legendView() -> AnyView {
     if let fact = colorViewModel.fact {
       return AnyView(
-        buildLegend(fact).background(BlurView(style: .light).cornerRadius(5))
+        buildLegend(fact).background(ZStack{
+          BlurView(style: .light).cornerRadius(5)
+          RoundedRectangle(cornerRadius: 5).foregroundColor(self.colorViewModel.colorTheme.uiBackground.color).opacity(0.8)
+        }.softOuterShadow(offset: 1, radius: 2))
       )
     } else {
       return AnyView(EmptyView())
