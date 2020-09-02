@@ -42,7 +42,7 @@ struct NeumorphicElementModifier: ViewModifier {
                                  startPoint: .topLeading,
                                  endPoint: .bottomTrailing))
       .cornerRadius(5)
-    .softOuterShadow(offset:2, radius: 1)
+    .softOuterShadow(offset:1, radius: 2)
     
       
   }
@@ -123,7 +123,7 @@ private struct SoftOuterShadowViewModifier: ViewModifier {
 }
 
 extension View {
-  public func softOuterShadow(offset: CGFloat = 6, radius: CGFloat = 3) -> some View {
+  public func softOuterShadow(offset: CGFloat = 7, radius: CGFloat = 10) -> some View {
     modifier(SoftOuterShadowViewModifier(offset: offset, radius: radius))
   }
 }

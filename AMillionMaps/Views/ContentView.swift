@@ -53,7 +53,7 @@ struct ContentView: View {
           ZStack {
             VStack {
               FilterView().padding(.top, geometry.safeAreaInsets.top)
-              ColorView().frame(minHeight: 300)
+              ColorView()
             }
           }.frame(maxWidth: 300)
           ZStack {
@@ -63,7 +63,7 @@ struct ContentView: View {
                 VStack {
                   HStack {
                     Spacer()
-                    LegendView().padding(35)
+                    LegendView().padding(.top, geometry.safeAreaInsets.top)
                   }
                   Spacer()
                 }
@@ -71,7 +71,7 @@ struct ContentView: View {
               TableView().frame(height: 350).padding(.bottom, 20)
             }
             HStack {
-              self.generateLeftSidePanelSelector(geometry).transition(.move(edge: .top))
+              self.generateLeftSidePanelSelector(geometry)
               Spacer()
             }
           }

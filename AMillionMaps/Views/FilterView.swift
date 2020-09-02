@@ -31,7 +31,7 @@ struct FilterView: View {
       HStack {
         Text("Filters").font(.title)
         Spacer()
-      }
+      }.padding([.leading, .trailing], 10)
       ScrollView {
         VStack {
           HStack {

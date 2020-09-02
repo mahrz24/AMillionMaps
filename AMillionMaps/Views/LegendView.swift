@@ -47,7 +47,7 @@ struct LegendView: View {
         buildLegend(fact).background(ZStack{
           BlurView(style: .light).cornerRadius(5)
           RoundedRectangle(cornerRadius: 5).foregroundColor(self.colorViewModel.colorTheme.uiBackground.color).opacity(0.8)
-        }.softOuterShadow(offset: 1, radius: 2))
+          }.softOuterShadow(offset: 1, radius: 2)).padding(10)
       )
     } else {
       return AnyView(EmptyView())
