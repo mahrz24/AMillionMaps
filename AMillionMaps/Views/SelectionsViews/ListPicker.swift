@@ -26,18 +26,16 @@ struct ListPicker<Content: View, Data: Identifiable>: View {
   var body: some View {
     ScrollView {
       VStack {
+        Text("\(self.counter)").frame(width: 0, height:0)
         ForEach(self.selections.indices) {
           index in
-          HStack() {
-            // This is an ugly hack to update the list on click
-            Text("\(self.counter)").frame(width: 0)
+          
             Button(action: { self.selected = self.selections[index]
               self.counter = (self.counter + 1) % 2
             }) {
               self.viewBuilder(self.selections[index], self.selections[index].id == self.selected.id)
             }
           }
-        }
       }.padding([.top], 5)
     }
   }
@@ -101,7 +99,7 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
     ScrollView {
       VStack {
         // This is an ugly hack to update the list on click
-        Text("\(self.counter)").frame(width: 0, height: 0)
+        // Text("\(self.counter)").frame(width: 0, height: 0)
         Button(action: { self.selected = nil
           self.counter = (self.counter + 1) % 2
         }) {

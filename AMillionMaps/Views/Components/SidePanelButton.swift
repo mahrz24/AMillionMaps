@@ -15,7 +15,7 @@ struct SidePanelButton<Content: View, PanelContent: View>: View {
   let panelBuilder: () -> PanelContent
   let viewBuilder: () -> Content
 
-  init(panelBuilder: @escaping () -> PanelContent, _ viewBuilder: @escaping () -> Content) {
+  init(@ViewBuilder panelBuilder: @escaping () -> PanelContent, _ viewBuilder: @escaping () -> Content) {
     self.panelBuilder = panelBuilder
     self.viewBuilder = viewBuilder
   }
@@ -29,7 +29,9 @@ struct SidePanelButton<Content: View, PanelContent: View>: View {
       self.selectionViewModel.leftSidePanelState = .visible(self.anyPanelBuilder)
       }
       }) {
-      viewBuilder()
+        VStack {
+          viewBuilder()
+        }
     }
   }
 }

@@ -80,6 +80,9 @@ struct ColorView: View {
         HStack(spacing:0) {
           
           SidePanelButton(panelBuilder: {
+            HStack {
+              Text("Color Mapping")
+            }
             OptionalListPicker(.constant(Country.mapFacts), selected: self.$viewModel.fact) {
               fact, selected in RadioBox(selected: selected, label: fact?.id ?? "None")
             }
