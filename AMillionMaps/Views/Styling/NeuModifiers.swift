@@ -76,6 +76,69 @@ extension View {
   }
 }
 
+struct RadioBox: View {
+  let selected: Bool
+  let label: String
+
+  var body: some View {
+    HStack {
+      if selected {
+        Image(systemName:  "dot.square.fill")
+
+          .frame(width: 14, height: 14).foregroundColor(Color.accentColor).paddedIcon().neumorphicPressed()
+        
+      } else {
+        Image(systemName: "square")
+        .frame(width: 14, height: 14).paddedIcon().neumorphic()
+      }
+      Text(label)
+      Spacer()
+    }
+  }
+}
+
+struct Checkbox: View {
+  let selected: Bool
+  let label: String
+
+  var body: some View {
+    HStack {
+      if selected {
+        Image(systemName:  "checkmark.square.fill")
+
+          .frame(width: 14, height: 14).foregroundColor(Color.accentColor).paddedIcon().neumorphicPressed()
+        
+      } else {
+        Image(systemName: "square")
+        .frame(width: 14, height: 14).paddedIcon().neumorphic()
+      }
+      Text(label)
+      Spacer()
+    }
+  }
+}
+
+struct NeumorphicToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+      return HStack {
+          if configuration.isOn {
+              Image(systemName:  "checkmark.square.fill")
+
+                .frame(width: 14, height: 14).foregroundColor(Color.accentColor).paddedIcon().neumorphicPressed()
+              
+            } else {
+              Image(systemName: "square")
+              .frame(width: 14, height: 14).paddedIcon().neumorphic()
+            }
+            configuration.label
+            Spacer()
+        }.onTapGesture {
+          print("Tapped")
+          configuration.isOn.toggle()
+      }
+    }
+}
+
 
 struct NeuCardModifier: ViewModifier {
   @Environment(\.colorTheme) var colorTheme: ColorTheme

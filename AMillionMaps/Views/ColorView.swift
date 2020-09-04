@@ -19,7 +19,7 @@ struct PartialRoundedButtonStyle: ButtonStyle {
         configuration.label
             .padding(cornerRadius)
             .background(
-              RoundedCorner(radius: cornerRadius, corners: corners).foregroundColor(colorTheme.uiBackground.darkened(amount: 0.05).color)
+              RoundedCorner(radius: cornerRadius, corners: corners).foregroundColor(colorTheme.uiBackground.darkened(amount: 0.01).color)
             )
           .foregroundColor(colorTheme.uiForeground.color)
     }
@@ -39,6 +39,32 @@ struct ColorView: View {
       return Text("Color").foregroundColor(.accentColor).lineLimit(1)
     }
   }
+  
+  func mapperSelection() -> some View {
+    if let selectedFact = viewModel.fact {
+      return AnyView(
+        VStack(spacing: 0){
+          Rectangle().frame(width: 241, height: 1).foregroundColor(.accentColor)
+        SidePanelButton(panelBuilder: {
+          ListPicker(.constant([
+            AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
+            AnyDomainMapperFactory(with: RankDomainMapperFactory()),
+            AnyDomainMapperFactory(with: CategoricalDomainMapperFactory()),
+          ]), selected: self.$viewModel.domainMapperFactory) {
+            fact, selected in RadioBox(selected: selected, label: fact.id)
+          }
+        }
+        ) {
+          Text(self.viewModel.domainMapperFactory.id).lineLimit(1).frame(width: 241, height: 30).font(Font.system(.footnote).smallCaps())
+      }.buttonStyle(PartialRoundedButtonStyle(cornerRadius: 0, corners: []))
+          Rectangle().frame(width: 241, height: 1).foregroundColor(.accentColor)
+      })
+    } else {
+      return AnyView(
+        Rectangle().frame(width: 241, height: 1).foregroundColor(.accentColor)
+      )
+    }
+  }
 
   func selectedLabelFactView() -> some View {
     if let selectedFact = viewModel.labelFact {
@@ -51,43 +77,44 @@ struct ColorView: View {
   var body: some View {
     VStack{
       VStack(spacing:0) {
-      ZStack{
         HStack(spacing:0) {
           
           SidePanelButton(panelBuilder: {
             OptionalListPicker(.constant(Country.mapFacts), selected: self.$viewModel.fact) {
-              fact, selected in Checkbox(selected: selected, label: fact.id)
+              fact, selected in RadioBox(selected: selected, label: fact?.id ?? "None")
             }
           }
           ) {
-            self.selectedFactView().frame(width: 100, height: 20).font(Font.system(.footnote).smallCaps())
+            self.selectedFactView().frame(width: 100, height: 22).font(Font.system(.footnote).smallCaps())
           }.buttonStyle(PartialRoundedButtonStyle(cornerRadius: 10, corners: [.topLeft]))
           Rectangle().frame(width: 1, height: 40).foregroundColor(.accentColor)
           SidePanelButton(panelBuilder: {
             OptionalListPicker(.constant(Country.mapFacts), selected: self.$viewModel.labelFact) {
-              fact, selected in Checkbox(selected: selected, label: fact.id)
+              fact, selected in RadioBox(selected: selected, label: fact?.id ?? "None")
             }
           }
           ) {
-            self.selectedLabelFactView().frame(width: 100, height: 20).font(Font.system(.footnote).smallCaps())
+            HStack(spacing:0){
+              self.selectedLabelFactView().frame(width: 73, height: 22).font(Font.system(.footnote).smallCaps()).padding(.trailing, 5)
+            Image(systemName: "lock.open").frame(width:22, height: 22).neumorphic()
+            }
           }.buttonStyle(PartialRoundedButtonStyle(cornerRadius: 10, corners: [.topRight]))
         }
-        HStack{
-          Spacer()
-          Image(systemName: "lock").paddedIcon().neumorphicPressed()
-          Spacer()
-        }
-      }
-        Rectangle().frame(width: 241, height: 1).foregroundColor(.accentColor)
+        
+      
+      
+        
+      self.mapperSelection()
+        
       SidePanelButton(panelBuilder: {
         VStack{
           HStack {
             Toggle(isOn: self.$viewModel.showFiltered) {
-              Text("Show Filtered:")
-            }
+              Text("Show Filtered")
+            }.toggleStyle(NeumorphicToggleStyle())
           }
           ListPicker(.constant(ColorTheme.allThemes()), selected: self.$viewModel.colorTheme) {
-            fact, selected in Checkbox(selected: selected, label: fact.id)
+            fact, selected in RadioBox(selected: selected, label: fact.id)
           }
         }
       }
@@ -97,25 +124,7 @@ struct ColorView: View {
       }.padding(.bottom, 25).softOuterShadow()
       
       
-      
-      
-//      HStack {
-//        Text("Mapping:")
-//        Spacer()
-//
-//        SidePanelButton(panelBuilder: {
-//          ListPicker(.constant([
-//            AnyDomainMapperFactory(with: LinearDomainMapperFactory()),
-//            AnyDomainMapperFactory(with: RankDomainMapperFactory()),
-//            AnyDomainMapperFactory(with: CategoricalDomainMapperFactory()),
-//          ]), selected: self.$viewModel.domainMapperFactory) {
-//            fact, selected in Checkbox(selected: selected, label: fact.id)
-//          }
-//        }
-//        ) {
-//          Text(self.viewModel.domainMapperFactory.id)
-//        }
-//      }
+
     }.padding([.leading, .trailing], 15)
   }
 }

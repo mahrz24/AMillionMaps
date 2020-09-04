@@ -41,7 +41,7 @@ struct FilterView: View {
             factState in self.generateRow(factState: factState)
           }
           HStack {
-            SidePanelButton(panelBuilder: {
+            SidePanelButton(panelBuilder: { 
               MultiListPicker(self.$viewModel.factStates) {
                 fact, selected in Checkbox(selected: selected, label: fact.id)
               }

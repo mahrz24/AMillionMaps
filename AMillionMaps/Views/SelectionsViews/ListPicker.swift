@@ -8,27 +8,7 @@
 
 import SwiftUI
 
-struct Checkbox: View {
-  let selected: Bool
-  let label: String
 
-  var body: some View {
-    HStack {
-      if selected {
-        Image(systemName:  "checkmark.square.fill")
-        .resizable()
-        .frame(width: 14, height: 14).paddedIcon().neumorphicPressed().foregroundColor(Color.accentColor)
-        
-      } else {
-        Image(systemName: "square")
-        .resizable()
-        .frame(width: 14, height: 14).paddedIcon().neumorphic()
-      }
-      Text(label)
-      Spacer()
-    }
-  }
-}
 
 struct ListPicker<Content: View, Data: Identifiable>: View {
   @Binding var selections: [Data]
@@ -109,9 +89,9 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
   @Binding var selected: Data?
   @State var counter = 0
 
-  let viewBuilder: (Data, Bool) -> Content
+  let viewBuilder: (Data?, Bool) -> Content
 
-  init(_ selections: Binding<[Data]>, selected: Binding<Data?>, _ viewBuilder: @escaping (Data, Bool) -> Content) {
+  init(_ selections: Binding<[Data]>, selected: Binding<Data?>, _ viewBuilder: @escaping (Data?, Bool) -> Content) {
     _selections = selections
     _selected = selected
     self.viewBuilder = viewBuilder
@@ -120,26 +100,23 @@ struct OptionalListPicker<Content: View, Data: Hashable>: View {
   var body: some View {
     ScrollView {
       VStack {
+        // This is an ugly hack to update the list on click
+        Text("\(self.counter)").frame(width: 0, height: 0)
         Button(action: { self.selected = nil
           self.counter = (self.counter + 1) % 2
         }) {
-          HStack {
-            Text("None")
-            Spacer()
-          }
+          self.viewBuilder(nil, self.selected == nil)
         }
 
         ForEach(self.selections.indices) {
           index in
-          HStack() {
-            // This is an ugly hack to update the list on click
-            Text("\(self.counter)").frame(width: 0)
+         
             Button(action: { self.selected = self.selections[index]
               self.counter = (self.counter + 1) % 2
             }) {
               self.viewBuilder(self.selections[index], self.selections[index] == self.selected)
             }
-          }
+      
         }
       }.padding([.top], 5)
     }

@@ -21,6 +21,7 @@ struct ContentView: View {
   // Global states needed for the fact selectors / other pickers
 
   @ObservedObject var selectionViewModel: SelectionViewState = Resolver.resolve()
+  @ObservedObject var colorAndDataViewModel: ColorAndDataState = Resolver.resolve()
 
   @Environment(\.colorTheme) var colorTheme: ColorTheme
 
